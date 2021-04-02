@@ -11,4 +11,6 @@ module.exports = function (app) {
     "/api/auth/signin", 
     controller.signin
   );
+
+  app.post("/api/uploadPic/img", controller.uploadPic);
 };

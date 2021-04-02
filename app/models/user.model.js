@@ -1,6 +1,7 @@
 const sql = require("./db.connection.js");
 const $ = require("jquery");
 
+
 // Constructor
 const User = function(user) {
     this.user_id = user.user_id;
@@ -12,7 +13,6 @@ const User = function(user) {
     this.birthdate = user.birthdate;
     this.gender_id = user.gender_id;
     this.phone = user.phone;
-    this.profile_pic = user.profile_pic;
     this.bio = user.bio;
     this.role_id = user.role_id;
     this.status_id = user.status_id;
@@ -21,7 +21,7 @@ const User = function(user) {
 }
 
 User.create = (newUser, result) => {
-    sql.query("INSERT INTO User SET ?", newUser, (err, res) => {
+    sql.query("INSERT INTO User SET ? ", newUser, (err, res) => {
         if (err) {
             console.log("error : ",err);
             result(err, null);
@@ -50,7 +50,7 @@ User.getCount = result => {
 }
 
 User.findByUsername = (username, result) => {
-    sql.query("SELECT * FROM User WHERE username = ${username}", (err, res) => {
+    sql.query("SELECT * FROM User WHERE username = ?", username, (err, res) => {
       if (err) {
         console.log("error: ", err);
         result(err, null);
@@ -58,15 +58,47 @@ User.findByUsername = (username, result) => {
       }
 
       if (res.length) {
-        console.log("found user: ", res);
+        console.log("found user: ", res[0]);
         result(null, res[0]);
         return;
       }
   
       // not found user with the username
-      result({ kind: "not_found" }, null);
+      result({ message : "not_found" }, null);
       return;
     });
   };
+
+User.uploadProfilePic = (data, result) => {
+  sql.query("UPDATE User SET profile_pic = ?, updated_at = ? WHERE user_id = ?", [data.path, data.updated_at, data.user_id], (err, res) => {
+    if (err) {
+      console.log("error: ", err);
+      result(err,null);
+      return;
+    }
+    //console.log("Insert profile picture to: ", {...data})
+    result(null,{...data});
+  })
+}
+
+User.getProfilePicturePath = (user_id, result) => {
+  sql.query("SELECT profile_pic FROM User WHERE user_id = ?", user_id, (err,res) => {
+    if (err) {
+      console.log("error: ", err);
+      result(err, null);
+      return;
+    }
+
+    if (res.length) {
+      console.log("found user: ", res[0]);
+      result(null, res[0]);
+      return;
+    }
+
+    // not found user with the this user id 
+    result({ message : "not_found" }, null);
+    return;
+  })
+}
   
 module.exports = User;

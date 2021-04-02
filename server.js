@@ -2,10 +2,12 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const $ = require("jquery");
-
+const path = require("path");
 //const cookieParser = require("cookie-parser");
+const multer = require("multer");
 
 const app = express();
+
 
 //jwt secretkey
 const secretKey = require("./app/config/auth.config").secret;
@@ -29,10 +31,13 @@ app.get("/", (req , res ) => {
 })
 
 require("./app/routes/auth.routes")(app);
-//require("./app/routes/user.routes")(app);
+require("./app/routes/user.routes")(app);
 
 //listening
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-    console.log("Server is running on ${PORT}.")
+    console.log("Server is running on ",PORT)
 });
+
+var publicDir = require('path').join(__dirname,'/data'); 
+app.use(express.static(publicDir)); 
