@@ -81,6 +81,25 @@ User.uploadProfilePic = (data, result) => {
   })
 }
 
+User.IsEmailDup = (email, result) => {
+  sql.query("SELECT user_id FROM User Where email = ?",email,(err,res) => {
+    if (err) {
+      console.log("error: ", err);
+      result(err, null);
+      result;
+    }
+    if (res.length) {
+      console.log("found user: ", res[0]);
+      result(null, res[0]);
+      return;
+    }
+
+    // not found user with the this user id 
+    result({ message : "not_found" }, null);
+    return;
+  })
+}
+
 User.getProfilePicturePath = (user_id, result) => {
   sql.query("SELECT profile_pic FROM User WHERE user_id = ?", user_id, (err,res) => {
     if (err) {

@@ -111,7 +111,7 @@ exports.signin = (req, res) => {
       if (err)
         return res.status(500).send({ message: err.message });
       if (!user) {
-        return res.status(404).send({ message: "User Not found." });
+        return res.status(404).send({ message: "User not found." });
       }
       else {
         var passwordIsValid = bcrypt.compareSync(
@@ -178,19 +178,18 @@ exports.signin = (req, res) => {
     });  */
 };
 
-// exports.checkEmailExists = (req, res) => {
-//   User.findOne({
-//     where: {
-//       email: req.body.email,
-//     },
-//   }).then((user) => {
-//     if (user) {
-//       res.status(404).send({ message: "Email duplicate" });
-//     } else {
-//       res.status(200).send({ message: "Email is not duplicated" });
-//     }
-//   });
-// };
+exports.checkEmailExists = (req, res) => {
+  User.IsEmailDup(
+    req.body.email, (err, user) => {
+      if (err) 
+        return res.status(500).send({ message: err.message });
+      if (user)
+        return res.status(404).send({ message: "Email duplicated"});
+      else 
+        return res.status(200).send({message: "Email is not duplicated"});
+    }
+  )
+};
 
 exports.uploadPic = (req, res) => {
   fsPromises.mkdir(_profilePicDir + req.query.user_id, { recursive: true }, (err) => {

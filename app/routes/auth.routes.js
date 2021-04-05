@@ -12,5 +12,13 @@ module.exports = function (app) {
     controller.signin
   );
 
-  app.post("/api/uploadPic/img", controller.uploadPic);
+  app.post(
+      "/api/uploadPic/img", 
+      controller.uploadPic
+  );
+
+  app.post(
+      "/api/auth/checkEmailExists",
+      controller.checkEmailExists
+  )
 };

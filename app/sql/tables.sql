@@ -12,16 +12,16 @@ CREATE TABLE IF NOT EXISTS Chat(
     UNIQUE      (chat_id)
     );
 
--- Create Category
-CREATE TABLE IF NOT EXISTS Category(
-    category_id             VARCHAR(4)      NOT NULL,
-    category_name           VARCHAR(32)     NOT NULL,
-    category_icon           VARCHAR(128)    NOT NULL,
-    created_at              BIGINT          NOT NULL,
-    updated_at              BIGINT          NOT NULL,
-    PRIMARY KEY (category_id),
-    UNIQUE      (category_id)
-    );
+-- -- Create Category
+-- CREATE TABLE IF NOT EXISTS Category(
+--     category_id             VARCHAR(4)      NOT NULL,
+--     category_name           VARCHAR(32)     NOT NULL,
+--     category_icon           VARCHAR(128)    NOT NULL,
+--     created_at              BIGINT          NOT NULL,
+--     updated_at              BIGINT          NOT NULL,
+--     PRIMARY KEY (category_id),
+--     UNIQUE      (category_id)
+--     );
 
 -- Create Discount
 CREATE TABLE IF NOT EXISTS Discount(
