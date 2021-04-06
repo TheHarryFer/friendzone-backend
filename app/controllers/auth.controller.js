@@ -142,51 +142,17 @@ exports.signin = (req, res) => {
         });
       }
   })
-     /* .then((user) => {
-      if (!user) {
-        return res.status(404).send({ message: "User Not found." });
-      }
-      var passwordIsValid = bcrypt.compareSync(
-        req.body.password,
-        user.password
-      );
-
-      if (!passwordIsValid) {
-        return res.status(401).send({
-          accessToken: null,
-          message: "Invalid Password!",
-        });
-      }
-      
-      const payload = {
-        user_id: user.user_id,
-        username: user.username,
-      };
-
-      var token = jwt.sign(payload, config.secret, {
-        expiresIn: 86400, // 24 hours
-       // expiresIn: 5,
-      });
-      res.cookie("user", token, { httpOnly: true, maxAge: 900000 });
-
-      res.status(200).send({
-        token,
-      });
-    })
-    .catch((err) => {
-      res.status(500).send({ message: err.message });
-    });  */
 };
 
-exports.checkEmailExists = (req, res) => {
-  User.IsEmailDup(
-    req.body.email, (err, user) => {
+exports.checkUniqueExists = (req, res) => {
+  User.IsUserDuplicated(
+    req.body, (err, user) => {
       if (err) 
         return res.status(500).send({ message: err.message });
       if (user)
-        return res.status(404).send({ message: "Email duplicated"});
+        return res.status(404).send({ message: "User duplicated"});
       else 
-        return res.status(200).send({message: "Email is not duplicated"});
+        return res.status(200).send({message: "User is not duplicated"});
     }
   )
 };

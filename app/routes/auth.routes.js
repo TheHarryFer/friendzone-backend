@@ -18,7 +18,7 @@ module.exports = function (app) {
   );
 
   app.post(
-      "/api/auth/checkEmailExists",
-      controller.checkEmailExists
+      "/api/auth/checkUniqueExists",
+      controller.checkUniqueExists
   )
 };

@@ -13,6 +13,7 @@ const User = function(user) {
     this.birthdate = user.birthdate;
     this.gender_id = user.gender_id;
     this.phone = user.phone;
+    this.profile_pic = user.profile_pic;
     this.bio = user.bio;
     this.role_id = user.role_id;
     this.status_id = user.status_id;
@@ -81,8 +82,8 @@ User.uploadProfilePic = (data, result) => {
   })
 }
 
-User.IsEmailDup = (email, result) => {
-  sql.query("SELECT user_id FROM User Where email = ?",email,(err,res) => {
+User.IsUserDuplicated = (user, result) => {
+  sql.query("SELECT user_id FROM User WHERE username = ? OR email = ?",[user.username,user.email],(err,res) => {
     if (err) {
       console.log("error: ", err);
       result(err, null);
@@ -94,7 +95,7 @@ User.IsEmailDup = (email, result) => {
       return;
     }
 
-    // not found user with the this user id 
+    // not found user with the this email
     result({ message : "not_found" }, null);
     return;
   })

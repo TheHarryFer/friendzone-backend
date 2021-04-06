@@ -12,16 +12,16 @@ CREATE TABLE IF NOT EXISTS Chat(
     UNIQUE      (chat_id)
     );
 
--- -- Create Category
--- CREATE TABLE IF NOT EXISTS Category(
---     category_id             VARCHAR(4)      NOT NULL,
---     category_name           VARCHAR(32)     NOT NULL,
---     category_icon           VARCHAR(128)    NOT NULL,
---     created_at              BIGINT          NOT NULL,
---     updated_at              BIGINT          NOT NULL,
---     PRIMARY KEY (category_id),
---     UNIQUE      (category_id)
---     );
+-- Create Category
+CREATE TABLE IF NOT EXISTS Category(
+    category_id             VARCHAR(4)      NOT NULL,
+    category_name           VARCHAR(32)     NOT NULL,
+    category_icon           VARCHAR(128)    NOT NULL,
+    created_at              BIGINT          NOT NULL,
+    updated_at              BIGINT          NOT NULL,
+    PRIMARY KEY (category_id),
+    UNIQUE      (category_id)
+    );
 
 -- Create Discount
 CREATE TABLE IF NOT EXISTS Discount(
@@ -29,8 +29,8 @@ CREATE TABLE IF NOT EXISTS Discount(
     name                    VARCHAR(64)     NOT NULL,
     description             VARCHAR(256)    NULL,
     discount_pic            VARCHAR(128)    NULL,
-    redeem_point            INTEGER         NOT NULL,
-    limit                   INTEGER         NOT NULL,
+    redeem_point            INT             NOT NULL,
+    limits                  INT             NOT NULL,
     period_start            BIGINT          NOT NULL,
     period_end              BIGINT          NOT NULL,
     use_within              BIGINT          NOT NULL,
@@ -52,9 +52,9 @@ CREATE TABLE IF NOT EXISTS Event(
     event_pic               VARCHAR(128)    NULL,
     start_at                BIGINT          NOT NULL,
     end_at                  BIGINT          NOT NULL,
-    max_participant         INTEGER         NOT NULL,
-    min_age                 INTEGER         NOT NULL,
-    max_age                 INTEGER         NOT NULL,
+    max_participant         INT             NOT NULL,
+    min_age                 INT             NOT NULL,
+    max_age                 INT             NOT NULL,
     status_id               VARCHAR(4)      NOT NULL,
     created_at              BIGINT          NOT NULL,
     updated_at              BIGINT          NOT NULL,
@@ -123,7 +123,7 @@ CREATE TABLE IF NOT EXISTS EventParticipant(
 CREATE TABLE IF NOT EXISTS EventReview(
     event_review_id         VARCHAR(8)      NOT NULL,
     reviewer_id             VARCHAR(8)      NOT NULL,
-    rating                  INTEGER         NOT NULL,
+    rating                  INT             NOT NULL,
     comment                 VARCHAR(256)    NULL,
     status_id               VARCHAR(4)      NOT NULL,
     created_at              BIGINT          NOT NULL,
@@ -158,7 +158,7 @@ CREATE TABLE IF NOT EXISTS ParticipantReview(
     participant_review_id   VARCHAR(8)      NOT NULL,
     reviewer_id             VARCHAR(8)      NOT NULL,
     participant_id          VARCHAR(8)      NOT NULL,
-    rating                  INTEGER         NOT NULL,
+    rating                  INT             NOT NULL,
     comment                 VARCHAR(256)    NULL,
     status_id               VARCHAR(4)      NOT NULL,
     created_at              BIGINT          NOT NULL,
@@ -173,7 +173,7 @@ CREATE TABLE IF NOT EXISTS PointTransaction(
     participant_id          VARCHAR(8)      NOT NULL,
     user_discount_id        VARCHAR(8)      NOT NULL,
     description             VARCHAR(256)    NOT NULL,
-    amount                  INTEGER         NOT NULL,
+    amount                  INT             NOT NULL,
     created_at              BIGINT          NOT NULL,
     updated_at              BIGINT          NOT NULL,
     PRIMARY KEY (point_transaction_id),
