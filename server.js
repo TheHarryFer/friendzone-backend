@@ -36,7 +36,8 @@ require("./app/routes/user.routes")(app);
 //listening
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-    console.log("Server is running on ",PORT)
+    console.log("Server is running on",PORT);
+    console.log("\nFriendzone API\n");
 });
 
 var publicDir = require('path').join(__dirname,'/data'); 
