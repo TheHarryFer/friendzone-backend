@@ -106,8 +106,8 @@ exports.signup = (req, res) => {
 };
 
 exports.signin = (req, res) => {
-  User.findByUsername(
-      req.body.username, (err, user) => {
+  User.findByidentification(
+      req.body.identification, (err, user) => {
       if (err)
         return res.status(500).send({ message: err.message });
       if (!user) {
@@ -127,8 +127,9 @@ exports.signin = (req, res) => {
         }
         
         const payload = {
-          user_id: user.user_id,
           username: user.username,
+          profile_pic : user.profile_pic,
+          role_id: user.role_id
         };
 
         var token = jwt.sign(payload, config.secret, {

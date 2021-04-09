@@ -7,5 +7,7 @@ module.exports = {
     PORT : 3306,
     DB : "Friendzone",
     dialect : "mysql",
-    timeout : 6000000
+    multipleStatements : true,
+    connectTimeout : 20000,
+    acquireTimeout : 20000
 }

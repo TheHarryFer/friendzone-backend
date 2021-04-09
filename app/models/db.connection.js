@@ -8,7 +8,10 @@ const connection = mysql.createConnection({
   user : dbConfig.USER,
   password : dbConfig.PASSWORD,
   database : dbConfig.DB,
-  multipleStatements : true
+  port : dbConfig.PORT,
+  multipleStatements : dbConfig.multipleStatements,
+  connectTimeout : dbConfig.connectTimeout,
+  acquireTimeout : dbConfig.acquireTimeout
 });
 
 
@@ -18,7 +21,6 @@ connection.connect(error => {
     throw error;
 
   console.log("Successfully connected to the " + dbConfig.DB + " database.");
-  
   var tables = fs.readFileSync('./app/sql/tables.sql').toString();
   connection.query(tables);
 });

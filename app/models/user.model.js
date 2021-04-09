@@ -22,7 +22,7 @@ const User = function(user) {
 }
 
 User.create = (newUser, result) => {
-    sql.query("INSERT INTO User SET ? ", newUser, (err, res) => {
+    sql.query(`INSERT INTO User SET ${newUser}`, (err, res) => {
         if (err) {
             console.log("error : ",err);
             result(err, null);
@@ -50,8 +50,8 @@ User.getCount = result => {
     })
 }
 
-User.findByUsername = (username, result) => {
-    sql.query("SELECT * FROM User WHERE username = ?", username, (err, res) => {
+User.findByidentification = (identification, result) => {
+    sql.query(`SELECT * FROM User WHERE username = '${identification}' OR email = '${identification}'`, (err, res) => {
       if (err) {
         console.log("error: ", err);
         result(err, null);
@@ -71,7 +71,7 @@ User.findByUsername = (username, result) => {
   };
 
 User.uploadProfilePic = (data, result) => {
-  sql.query("UPDATE User SET profile_pic = ?, updated_at = ? WHERE user_id = ?", [data.path, data.updated_at, data.user_id], (err, res) => {
+  sql.query(`UPDATE User SET profile_pic = '${data.path}', updated_at = '${data.updated_at}' WHERE user_id = '${data.user_id}'`, (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(err,null);
@@ -83,7 +83,7 @@ User.uploadProfilePic = (data, result) => {
 }
 
 User.IsUserDuplicated = (user, result) => {
-  sql.query("SELECT user_id FROM User WHERE username = ? OR email = ?",[user.username,user.email],(err,res) => {
+  sql.query(`SELECT user_id FROM User WHERE username = '${user.username}' OR email = '${user.email}'`,(err,res) => {
     if (err) {
       console.log("error: ", err);
       result(err, null);
@@ -102,7 +102,7 @@ User.IsUserDuplicated = (user, result) => {
 }
 
 User.getProfilePicturePath = (user_id, result) => {
-  sql.query("SELECT profile_pic FROM User WHERE user_id = ?", user_id, (err,res) => {
+  sql.query(`SELECT profile_pic FROM User WHERE user_id = '${user_id}'`, (err,res) => {
     if (err) {
       console.log("error: ", err);
       result(err, null);
