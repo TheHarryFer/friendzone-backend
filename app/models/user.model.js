@@ -120,5 +120,24 @@ User.getProfilePicturePath = (user_id, result) => {
     return;
   })
 }
-  
+
+User.getPicAndName = (user_id, result) => {
+  sql.query(`SELECT username, profile_pic FROM User WHERE user_id = '${user_id}'`, (err,res) => {
+    if (err) {
+      console.log("error: ", err);
+      result(err, null);
+      return;
+    }
+
+    if (res.length) {
+      console.log("found user: ", res[0]);
+      result(null, res[0]);
+      return;
+    }
+
+    // not found user with the this user id 
+    result({ message : "not_found" }, null);
+    return;
+  })
+}
 module.exports = User;

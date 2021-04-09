@@ -39,3 +39,18 @@ exports.displayPic = (req,res) => {
         }
     )
 }
+
+exports.getPicAndName = (req, res) => {
+    User.getPicAndName(
+      req.body, (err, user) => {
+        if (err) 
+          return res.status(500).send({ message: err.message });
+        if (user)
+           return res.status(200).send({
+                username: user.username,
+                profile_pic
+                });
+    
+      }
+    )
+  };
