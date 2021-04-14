@@ -127,8 +127,7 @@ exports.signin = (req, res) => {
         }
         
         const payload = {
-          username: user.username,
-          profile_pic : user.profile_pic,
+          user_id: user.user_id,
           role_id: user.role_id
         };
 
@@ -148,12 +147,13 @@ exports.signin = (req, res) => {
 exports.checkUniqueExists = (req, res) => {
   User.IsUserDuplicated(
     req.body, (err, user) => {
+      console.log(user)
       if (err) 
         return res.status(500).send({ message: err.message });
       if (user)
-        return res.status(404).send({ message: "User duplicated"});
-      else 
-        return res.status(200).send({message: "User is not duplicated"});
+        return res.status(200).send(user);
+      else
+        return res.status(404).send(user);
     }
   )
 };

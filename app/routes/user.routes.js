@@ -12,7 +12,9 @@ module.exports = function(app) {
 
   	//app.post("/api/uploadPic/img", auth,controller.uploadPic);
 
-  	app.get("/api/displayPic/?user_id=:user_id", auth,controller.displayPic);
+  	app.get("/api/displayPic/:user_id", controller.displayPic);
 
-	app.get(`/api/getPicAndName/?user_id=:user_id`,auth,controller.getPicAndName)
+	app.get("/api/getUsername/:user_id", controller.getUsername);
+	
+	app.get("/api/getUserDetail/:user_id", controller.getUserDetail);
 };

@@ -22,7 +22,7 @@ const User = function(user) {
 }
 
 User.create = (newUser, result) => {
-    sql.query(`INSERT INTO User SET ${newUser}`, (err, res) => {
+    sql.query(`INSERT INTO User SET ?`, newUser, (err, res) => {
         if (err) {
             console.log("error : ",err);
             result(err, null);
@@ -90,14 +90,15 @@ User.IsUserDuplicated = (user, result) => {
       result;
     }
     if (res.length) {
-      console.log("found user: ", res[0]);
-      result(null, res[0]);
+      console.log("found user: " + res[0].user_id);
+      result(null, { message : "Duplicated", exist : true });
+      return;
+    }
+    else {
+      result(null, { message : "Not Duplicated", exist : false });
       return;
     }
 
-    // not found user with the this email
-    result({ message : "not_found" }, null);
-    return;
   })
 }
 
@@ -121,8 +122,8 @@ User.getProfilePicturePath = (user_id, result) => {
   })
 }
 
-User.getPicAndName = (user_id, result) => {
-  sql.query(`SELECT username, profile_pic FROM User WHERE user_id = '${user_id}'`, (err,res) => {
+User.getUser = (user_id, result) => {
+  sql.query(`SELECT * FROM User WHERE user_id = '${user_id}'`, (err,res) => {
     if (err) {
       console.log("error: ", err);
       result(err, null);

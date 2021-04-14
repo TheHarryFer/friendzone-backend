@@ -1,5 +1,3 @@
-const User = require("../models/user.model")
-
 module.exports = {
     HOST : process.env.DB_URL || "localhost",
     USER : "root",

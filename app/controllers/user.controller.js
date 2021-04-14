@@ -40,17 +40,34 @@ exports.displayPic = (req,res) => {
     )
 }
 
-exports.getPicAndName = (req, res) => {
-    User.getPicAndName(
-      req.body, (err, user) => {
-        if (err) 
-          return res.status(500).send({ message: err.message });
-        if (user)
-           return res.status(200).send({
-                username: user.username,
-                profile_pic
+exports.getUsername = (req, res) => {
+	User.getUser(
+		req.params.user_id, (err, user) => {
+			if (err) 
+				return res.status(500).send({ message: err.message });
+			if (user)
+				return res.status(200).send({ username: user.username });
+		}
+	)
+};
+
+exports.getUserDetail = (req, res) => {
+	User.getUser(
+		req.params.user_id, (err, user) => {
+			if (err) 
+				return res.status(500).send({ message: err.message });
+			if (user)
+				return res.status(200).send({ 
+                    username: user.username,
+                    email: user.email,
+                    firstname: user.firstname,
+                    lastname: user.lastname,
+                    phone: user.phone,
+                    gender_id: user.gender_id,
+                    birthdate: user.birthdate,
+                    profile_pic: user.profile_pic,
+                    bio: user.bio
                 });
-    
-      }
-    )
-  };
+		}
+	)
+};
