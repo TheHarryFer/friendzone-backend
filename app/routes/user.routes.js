@@ -6,7 +6,7 @@ module.exports = function(app) {
 
   	// app.post("/api/profile", auth, controller.userBoard);
 
-  	// app.post("/api/edit", auth, controller.editData);
+    app.post("/api/editUser",controller.editUser);
 
   	// app.post("/api/changePassword", auth, controller.changePassword);
 

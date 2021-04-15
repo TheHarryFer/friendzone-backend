@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS Category(
     category_id             VARCHAR(4)      NOT NULL,
     category_name           VARCHAR(32)     NOT NULL,
     category_icon           VARCHAR(128)    NOT NULL,
+    color_code              VARCHAR(7)      NOT NULL,
     created_at              BIGINT          NOT NULL,
     updated_at              BIGINT          NOT NULL,
     PRIMARY KEY (category_id),

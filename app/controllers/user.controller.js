@@ -71,3 +71,14 @@ exports.getUserDetail = (req, res) => {
 		}
 	)
 };
+
+exports.editUser = (req, res) => {
+    User.editUser(
+        req.body, (err, message) => {
+            if(err) 
+                return res.status(500).send({ message: err.message });
+            if(message)
+                return res.status(200).send({ message: message});
+        }
+    )
+}

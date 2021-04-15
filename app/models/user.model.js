@@ -141,4 +141,18 @@ User.getUser = (user_id, result) => {
     return;
   })
 }
+
+User.editUser = (user, result) => {
+  sql.query(`Update User Set ? WHERE user_id = "${user.user_id}"`,user ,(err,res) => {
+    if (err) {
+      console.log("error : ",err);
+      result(err, null);
+      return;
+  }
+
+  console.log("Created user : ", { ...user });
+  result(null, { ...user });
+
+  })
+}
 module.exports = User;
