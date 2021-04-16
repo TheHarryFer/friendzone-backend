@@ -7,10 +7,14 @@ const authMiddleware = (req, res, next) => {
     jwt.verify(token, secretKey, (err, payload) => {
         if (err)
             return res.sendStatus(401);
-        if (payload.id)
+        if (payload.user_id)
             return next();
         return res.sendStatus(400);
     })
 }
+
+const authJwt = {
+    verifyToken : verifyToken,
+  };
 
 module.exports = authMiddleware;

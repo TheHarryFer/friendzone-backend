@@ -8,7 +8,7 @@ module.exports = function (app) {
   );
 
   app.post(
-    "/api/auth/signin", 
+    "/api/auth/signin",
     controller.signin
   );
 

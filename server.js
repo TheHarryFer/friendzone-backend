@@ -33,6 +33,7 @@ app.get("/", (req , res ) => {
 
 require("./app/routes/auth.routes")(app);
 require("./app/routes/user.routes")(app);
+require("./app/routes/gender.routes")(app);
 
 //listening
 const PORT = process.env.PORT || 8080;
