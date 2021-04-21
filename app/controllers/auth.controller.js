@@ -1,13 +1,7 @@
 const User = require("../models/user.model.js");
 const config = require("../config/auth.config");
-const multer = require('multer');
-const fs = require('fs')
-const async = require('async')
-const fsPromises = fs.promises
-const _profilePicDir = './data/profilePic/'
 
-
-//const { validationResult } = require("express-validator");
+const { validationResult } = require("express-validator");
 
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
@@ -17,93 +11,67 @@ function getTimeStamp(){
 }
 
 exports.signup = (req, res) => {
-  /* const errors = validationResult(req);
+  const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
-  } */
+  }
   
-  // Validate request
   if (!req.body) {
     res.status(400).send({
         message: "Content can not be empty!"
     })
   }
-  // Running user_id
-  // async function newUserID() {
-  //   let count = await getCountFromUser();
-  //   // let user_id = await createId(count);
-  //   return count;
-  // }
-  // function createId(count) {
-  //   console.log(count)
-  //   count++;
-  //   count = count.toString();
-  //   var temp;
-  //   for(i = 0; i < 6 - count.length ; i++) {
-  //       temp = temp + "0"
-  //   }
-  //   var user_id = "US" + temp + count; 
-  //   console.log(user_id)
-  //   return user_id;
-  // }
-  //function getCountFromUser() {
-    User.getCount((err, count) => {
-      if (err)
-          res.status(500).send({
-              message : err.message || "Some error occurred while getting count of the users."
-          })
-      else {
-        console.log("count" + count)
-        count++;
-        count = count.toString();
-        var user_id = "US" + count.padStart(6, '0'); 
-        console.log("user_id" + user_id)
-          // Hash User's password
-        req.body.password = bcrypt.hashSync(req.body.password, 8);
 
-        // Create a User
-        const user = new User({
-            user_id : user_id,
-            username : req.body.username,
-            password : req.body.password,
-            email : req.body.email,
-            firstname : req.body.firstname,
-            lastname : req.body.lastname,
-            birthdate : req.body.birthdate,
-            gender_id : req.body.gender_id,
-            phone : req.body.phone,
-            bio : req.body.bio,
-            role_id : "RO01",
-            status_id : "ST01",
-            created_at : getTimeStamp(),
-            updated_at : getTimeStamp()
+  User.getCount((err, count) => {
+    if (err)
+        res.status(500).send({
+            message : err.message || "Some error occurred while getting count of the users."
         })
-
-        // Save User in the database
-        User.create(user, (err, data) => {
-            if (err)
-                res.status(500).send({
-                    message : err.message || "Some error occurred while creating the User."
-                })
-            else
-                res.send(data);
-        })
-        
-      }
-    })/* .then(() => {
-      console.log("count" + count)
+    else {
       count++;
       count = count.toString();
-      var temp;
-      for(i = 0; i < 6 - count.length ; i++) {
-          temp = temp + "0"
+      var user_id = "US" + count.padStart(6, '0');
+      var user = new User("");
+      const timeStamp = getTimeStamp();
+
+      req.body.password = bcrypt.hashSync(req.body.password, 8);
+
+      user = req.body;
+      user.user_id = user_id;
+      user.username = user.username.toLowerCase();
+      user.email = user.email.toLowerCase();
+      user.role_id = "RO04";
+      user.status_id = "ST02";
+      user.created_at = timeStamp;
+      user.updated_at = timeStamp;
+
+      // Save User in the database
+      User.create(user, (err, newUser) => {
+          if (err)
+              res.status(500).send({
+                  message : err.message || "Some error occurred while creating the User."
+              })
+          else {
+            const payload = {
+              user_id: newUser.user_id,
+              role_id: newUser.role_id
+            };
+    
+            var token = jwt.sign(payload, config.secret, {
+              expiresIn: 86400, // 24 hours
+            // expiresIn: 5,
+            });
+            res.cookie("user", token, { httpOnly: true, maxAge: 900000 });
+    
+            res.status(200).send({
+              user_id: newUser.user_id,
+              token
+            });
+          }
+        })
       }
-      var user_id = "US" + temp + count; 
-      console.log("user_id" + user_id)
-      return user_id;
-    }) */
-  //}
-};
+    })
+  };
 
 exports.signin = (req, res) => {
   User.findByidentification(
@@ -147,7 +115,7 @@ exports.signin = (req, res) => {
 exports.checkUniqueExists = (req, res) => {
   User.IsUserDuplicated(
     req.body, (err, user) => {
-      console.log(user)
+      //console.log(user)
       if (err) 
         return res.status(500).send({ message: err.message });
       if (user)
@@ -157,44 +125,3 @@ exports.checkUniqueExists = (req, res) => {
     }
   )
 };
-
-exports.uploadPic = (req, res) => {
-  fsPromises.mkdir(_profilePicDir + req.query.user_id, { recursive: true }, (err) => {
-    console.log('mkdir err -->' + err);
-  }).then(() => {
-    console.log("id: ",req.query.user_id);
-    upload(req, res, (err) => {
-      if (err) {
-        console.log('error by uploading IMG');
-        console.log(err);
-        res.status(500).send({ message: err.message });
-      }
-      else {
-        console.log('id UPLOAD IMG --> ' + req.query.user_id);
-        res.send({ message: "upload image success" })
-      }
-    });
-  })
-}
-
-const storage = multer.diskStorage({
-  destination: function (req, file, callback) {
-    User.uploadProfilePic({
-      user_id : req.query.user_id,
-      path : req.query.user_id + "/" + req.query.user_id + "-" + file.originalname,
-      updated_at : getTimeStamp()
-      }, (err, data) => {
-        if (err)
-          console.log(err.message || "Some error occurred while updating profile picture path.");
-        else
-          console.log(data);
-    });
-    callback(null, _profilePicDir + req.query.user_id); //will automate catagory
-  },
-  filename: function (req, file, callback) {
-    console.log(file);
-    callback(null, req.query.user_id + '-' + file.originalname);
-    }
-  });
-  // Function to upload images
-const upload = multer({storage: storage}).single('uploadedImages');
