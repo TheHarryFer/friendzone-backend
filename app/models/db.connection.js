@@ -19,6 +19,7 @@ connection.connect((error) => {
   if (error) throw error;
 
   console.log("Successfully connected to the " + dbConfig.DB + " database.");
+  
   // var tables = fs.readFileSync('./app/sql/tables.sql').toString();
   // connection.query(tables)
   // var foreignKey = fs.readFileSync('./app/sql/foreign.keys.sql').toString();
@@ -29,6 +30,8 @@ connection.connect((error) => {
   // connection.query(roleData)
   // var statusData = fs.readFileSync('./app/sql/status.data.sql').toString();
   // connection.query(statusData)
+  // var categoryData = fs.readFileSync('./app/sql/category.data.sql').toString();
+  // connection.query(categoryData)
 });
 
 module.exports = connection;

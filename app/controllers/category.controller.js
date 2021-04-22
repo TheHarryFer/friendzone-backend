@@ -28,18 +28,19 @@ exports.create = (req, res) => {
       count = count.toString();
       var category_id = "CA" + count.padStart(2, "0");
       var category = new Category("");
-      const timeStamp = getTimeStamp();
 
       category = req.body;
       category.category_id = category_id;
-      category.created_at = timeStamp;
-      category.updated_at = timeStamp;
+      category.created_at = getTimeStamp();
+      category.updated_at = getTimeStamp();
 
       Category.create(category, (err, category) => {
         if (err) return res.status(500).send({ message: err.message });
         res
           .status(200)
-          .send({ message: "Category : " + category.category_name + " created" });
+          .send({
+            message: "Category : " + category.category_name + " created",
+          });
       });
     }
   });
@@ -94,24 +95,16 @@ exports.uploadCategoryIcon = (req, res) => {
 
 const storage = multer.diskStorage({
   destination: function (req, file, callback) {
+    var filename = req.query.category_id + "-" + req.query.type + "-" + file.originalname;
     if (req.query.type === "white") {
       Category.uploadWhiteCategoryIcon(
         {
           category_id: req.query.category_id,
-          icon_white:
-            req.query.type +
-            "/" +
-            req.query.category_id +
-            "-" +
-            file.originalname,
+          icon_white: req.query.type + "/" + filename,
           updated_at: getTimeStamp(),
         },
         (err, data) => {
-          if (err)
-            console.log(
-              err.message ||
-                "Some error occurred while updating white category icon path."
-            );
+          if (err) return res.status(500).send({ message: err.message });
           else console.log(data);
         }
       );
@@ -119,20 +112,11 @@ const storage = multer.diskStorage({
       Category.uploadBlackCategoryIcon(
         {
           category_id: req.query.category_id,
-          icon_black:
-            req.query.type +
-            "/" +
-            req.query.category_id +
-            "-" +
-            file.originalname,
+          icon_black: req.query.type + "/" + filename,
           updated_at: getTimeStamp(),
         },
         (err, data) => {
-          if (err)
-            console.log(
-              err.message ||
-                "Some error occurred while updating black category icon path."
-            );
+          if (err) return res.status(500).send({ message: err.message });
           else console.log(data);
         }
       );
@@ -140,25 +124,33 @@ const storage = multer.diskStorage({
     callback(null, _profilePicDir + req.query.type);
   },
   filename: function (req, file, callback) {
-    console.log(file);
-    callback(null, req.query.category_id + "-" + file.originalname);
+    var filename = req.query.category_id + "-" + req.query.type + "-" + file.originalname;
+    callback(null, filename);
   },
 });
 
+const upload = multer({ storage: storage }).single("uploadedImages");
+
 exports.displayCategoryIcon = (req, res) => {
-  Category.getCategoryIconPath(req.params.category_id, (err, user) => {
+  Category.getCategoryIconPath(req.query.category_id, (err, categoryIcon) => {
     if (err) return res.status(500).send({ message: err.message });
-    if (!user)
+    if (!categoryIcon)
       return res.status(404).send({ message: "this category is not found" });
     else {
-      let fileType = path.extname(user.profile_pic);
+      let icon;
+      if (req.query.type == "white")
+        icon = categoryIcon.icon_white;
+      else if (req.query.type == "black")
+        icon = categoryIcon.icon_black;
+      
+      let fileType = path.extname(icon);
 
       if (fileType === ".png") contentType = "image/png";
       else if (fileType === ".jpg") contentType = "image/jpg";
       else if (fileType === ".jpeg") contentType = "image/jpeg";
       else contentType = "text/plain";
 
-      fs.readFile(_profilePicDir + user.profile_pic, function (error, content) {
+      fs.readFile(_profilePicDir + icon, function (error, content) {
         if (error) {
           res.writeHead(500, { "Content-Type": "text/plain" });
           res.end("Internal server error");
@@ -170,5 +162,3 @@ exports.displayCategoryIcon = (req, res) => {
     }
   });
 };
-
-const upload = multer({ storage: storage }).single("uploadedImages");

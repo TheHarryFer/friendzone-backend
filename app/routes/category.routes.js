@@ -7,5 +7,5 @@ module.exports = function (app) {
 
   app.get("/api/category/getCategoryList", controller.getCategoryList);
 
-  app.get("/api/category/displayIcon/:category_id/:type", controller.displayCategoryIcon);
+  app.get("/api/category/displayIcon", controller.displayCategoryIcon);
 };

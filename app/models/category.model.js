@@ -83,4 +83,27 @@ Category.uploadBlackCategoryIcon = (data, result) => {
   );
 };
 
+Category.getCategoryIconPath = (category_id, result) => {
+  sql.query(
+    `SELECT icon_white, icon_black FROM Category WHERE category_id = '${category_id}'`,
+    (err, res) => {
+      if (err) {
+        console.log("error : ", err);
+        result(err, null);
+        return;
+      }
+      
+      if (res.length) {
+        //console.log("found category: ", res[0]);
+        result(null, res[0]);
+        return;
+      }
+
+      // not found category with the this category id
+      result({ message: "not_found" }, null);
+      return;
+    }
+  );
+};
+
 module.exports = Category;

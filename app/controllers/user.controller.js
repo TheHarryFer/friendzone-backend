@@ -39,11 +39,7 @@ const storage = multer.diskStorage({
         updated_at: getTimeStamp(),
       },
       (err, data) => {
-        if (err)
-          console.log(
-            err.message ||
-              "Some error occurred while updating profile picture path."
-          );
+        if (err) return res.status(500).send({ message: err.message });
         else console.log(data);
       }
     );
