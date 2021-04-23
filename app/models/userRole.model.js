@@ -17,7 +17,7 @@ UserRole.getCount = (result) => {
     }
 
     if (res) {
-      console.log("Count : ", res[0].count);
+      //console.log("Count : ", res[0].count);
       result(null, res[0].count);
       return;
     }
@@ -35,7 +35,7 @@ UserRole.create = (newUserRole, result) => {
         return;
       }
 
-      console.log("Created user role : ", { ...newUserRole });
+      //console.log("Created user role : ", { ...newUserRole });
       result(null, { ...newUserRole });
     }
   );
@@ -43,8 +43,7 @@ UserRole.create = (newUserRole, result) => {
 
 UserRole.getUserRoles = (user_id, result) => {
   sql.query(
-    `SELECT role_id FROM UserRole WHERE user_id = '${user_id}' AND status = 'ST02'`,
-    newUserRole,
+    `SELECT role_id FROM UserRole WHERE user_id = '${user_id}' AND status = TRUE`,
     (err, res) => {
       if (err) {
         console.log("error : ", err);
@@ -52,8 +51,8 @@ UserRole.getUserRoles = (user_id, result) => {
         return;
       }
 
-      console.log("Created user role : ", { ...newUserRole });
-      result(null, { ...newUserRole });
+      //console.log("Found user roles : ", res);
+      result(null, res);
     }
   );
 };

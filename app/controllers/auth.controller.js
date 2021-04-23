@@ -99,19 +99,31 @@ exports.signin = (req, res) => {
         });
       }
 
-      const payload = {
-        user_id: user.user_id
-      };
+      UserRole.getUserRoles(user.user_id, (err, userRoles) => {
+        if (err) return res.status(500).send({ message: err.message });
+        else {
+          var userRolesArr = [];
 
-      var token = jwt.sign(payload, config.secret, {
-        expiresIn: 86400, // 24 hours
-        // expiresIn: 5,
-      });
-      res.cookie("user", token, { httpOnly: true, maxAge: 900000 });
+          userRoles.forEach(role => {
+            userRolesArr.push(role.role_id);
+          });
 
-      res.status(200).send({
-        token,
-      });
+          const payload = {
+            user_id: user.user_id,
+            role_id: userRolesArr
+          };
+
+          var token = jwt.sign(payload, config.secret, {
+            expiresIn: 86400, // 24 hours
+            // expiresIn: 5,
+          });
+          res.cookie("user", token, { httpOnly: true, maxAge: 900000 });
+    
+          res.status(200).send({
+            token,
+          });
+        }
+      })
     }
   });
 };

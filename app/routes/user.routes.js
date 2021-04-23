@@ -8,6 +8,8 @@ module.exports = function (app) {
 
   app.post("/api/user/editUser", auth, controller.editUser);
 
+  app.post("/api/user/updateUserCategory", auth, controller.updateUserCategory)
+
   // app.post("/api/changePassword", auth, controller.changePassword);
 
   app.post("/api/user/uploadPic/img", auth, controller.uploadPic);

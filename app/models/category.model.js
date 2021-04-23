@@ -41,7 +41,7 @@ Category.getCount = (result) => {
 
 Category.getCategoryList = (result) => {
   sql.query(
-    `SELECT category_id, category_name, category_icon, color_code FROM Category`,
+    `SELECT category_id, category_name, color_code FROM Category`,
     (err, res) => {
       if (err) {
         console.log("error : ", err);

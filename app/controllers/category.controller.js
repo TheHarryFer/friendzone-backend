@@ -39,7 +39,7 @@ exports.create = (req, res) => {
         res
           .status(200)
           .send({
-            message: "Category : " + category.category_name + " created",
+            message: "Category : " + category.category_name + " created"
           });
       });
     }

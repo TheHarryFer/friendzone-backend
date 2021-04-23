@@ -1,13 +1,12 @@
 const User = require("../models/user.model.js");
+const UserCategory = require("../models/userCategory.model.js")
 const multer = require("multer");
 const fs = require("fs");
 const fsPromises = fs.promises;
 const _profilePicDir = "./data/profilePic/";
 const path = require("path");
 
-function getTimeStamp() {
-  return Math.floor(Date.now() / 1000);
-}
+function getTimeStamp() {return Math.floor(Date.now() / 1000)}
 
 exports.uploadPic = (req, res) => {
   fsPromises
@@ -109,4 +108,32 @@ exports.editUser = (req, res) => {
     if (err) return res.status(500).send({ message: err.message });
     if (message) return res.status(200).send({ message: message });
   });
+};
+
+exports.updateUserCategory = (req, res) => {
+  if (!req.body) {
+    return res.status(400).send({
+      message: "Content can not be empty!",
+    });
+  }
+  
+  var categoryList = [];
+  req.body.category_id.forEach(category_id => {
+    categoryList.push([
+      user_id = req.body.user_id,
+      category_id = category_id,
+      interest = true,
+      created_at = getTimeStamp(),
+      updated_at = getTimeStamp()
+    ])
+  });
+
+  UserCategory.create(categoryList, (err, userCategory) => {
+    if (err) return res.status(500).send({ message: err.message });
+    else {
+      return res
+     .status(200)
+     .send({ message: "Created user category : " +  userCategory});
+   }
+  })
 };
