@@ -49,7 +49,7 @@ exports.signup = (req, res) => {
             var userRole = new UserRole("");
 
             userRole.user_id = user.user_id;
-            userRole.role_id = "RO04";
+            userRole.role_id = ["RO04"];
             userRole.status = true;
             userRole.created_at = getTimeStamp();
             userRole.updated_at = getTimeStamp();

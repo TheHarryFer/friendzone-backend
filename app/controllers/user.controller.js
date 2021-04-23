@@ -3,7 +3,7 @@ const UserCategory = require("../models/userCategory.model.js")
 const multer = require("multer");
 const fs = require("fs");
 const fsPromises = fs.promises;
-const _profilePicDir = "./data/profilePic/";
+const _profilePicDir = "./data/user/";
 const path = require("path");
 
 function getTimeStamp() {return Math.floor(Date.now() / 1000)}
@@ -18,7 +18,6 @@ exports.uploadPic = (req, res) => {
       upload(req, res, (err) => {
         if (err) {
           console.log("error by uploading IMG");
-          console.log(err);
           res.status(500).send({ message: err.message });
         } else {
           console.log("id UPLOAD IMG --> " + req.query.user_id);
@@ -45,7 +44,6 @@ const storage = multer.diskStorage({
     callback(null, _profilePicDir + req.query.user_id);
   },
   filename: function (req, file, callback) {
-    console.log(file);
     callback(null, req.query.user_id + "-" + file.originalname);
   },
 });

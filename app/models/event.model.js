@@ -47,6 +47,21 @@ Event.create = (newEvent, result) => {
   });
 };
 
+Event.uploadEventPic = (data, result) => {
+  sql.query(
+    `UPDATE Event SET event_pic = '${data.event_pic}', updated_at = '${data.updated_at}' WHERE event_id = '${data.event_id}'`,
+    (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(err, null);
+        return;
+      }
+      //console.log("Insert event picture to: ", {...data})
+      result(null, { ...data });
+    }
+  );
+};
+
 Event.updateHost = (data, result) => {
   sql.query(
     `Update Event SET host_id = "${data.host_id}" WHERE event_id = "${data.event_id}"`,
@@ -63,4 +78,47 @@ Event.updateHost = (data, result) => {
   );
 };
 
+Event.getEventPicturePath = (event_id, result) => {
+  sql.query(
+    `SELECT event_pic FROM Event WHERE event_id = '${event_id}'`,
+    (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(err, null);
+        return;
+      }
+
+      if (res.length) {
+        //console.log("found event: ", res[0]);
+        result(null, res[0]);
+        return;
+      }
+
+      // not found user with the this event id
+      result({ message: "not_found" }, null);
+      return;
+    }
+  );
+};
+
+Event.getHostedEvent = (user_id, result) => {
+  sql.query(`SELECT e.*, u.username FROM Event e, User u WHERE e.host_id = '${user_id}' AND u.user_id = e.host_id`,
+    (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(err, null);
+        return;
+      }
+      if (res.length) {
+        //console.log("found user: ", res[0]);
+        result(null, res);
+        return;
+      }
+
+      // not found user with the this user id
+      result({ message: "not_found" }, null);
+      return;
+    }
+  );
+};
 module.exports = Event;
