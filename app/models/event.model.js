@@ -102,7 +102,20 @@ Event.getEventPicturePath = (event_id, result) => {
 };
 
 Event.getHostedEvent = (user_id, result) => {
-  sql.query(`SELECT e.*, u.username FROM Event e, User u WHERE e.host_id = '${user_id}' AND u.user_id = e.host_id`,
+  sql.query(
+    `SELECT EV.* , US.username,US.user_id, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id) AS joined, COALESCE(UI.interest, 0) AS interest\
+    FROM EventParticipant EP\
+    LEFT JOIN Event EV\ 
+         ON EP.event_participant_id = EV.host_id\
+    LEFT JOIN User US\
+         ON US.user_id = EP.participant_id\
+    LEFT JOIN UserInterest UI\ 
+         ON EP.participant_id = UI.user_id AND EV.event_id = UI.event_id\
+    WHERE  EP.participant_id = '${user_id}' AND\ 
+           EP.status_id = 'ST11' AND \ 
+           EV.host_id = EP.event_participant_id\
+    GROUP BY EP.event_id , EV.host_id\
+  `,
     (err, res) => {
       if (err) {
         console.log("error: ", err);
@@ -110,7 +123,7 @@ Event.getHostedEvent = (user_id, result) => {
         return;
       }
       if (res.length) {
-        //console.log("found user: ", res[0]);
+        console.log("found event: ", res);
         result(null, res);
         return;
       }
@@ -121,4 +134,41 @@ Event.getHostedEvent = (user_id, result) => {
     }
   );
 };
+
+Event.getJoinedEvent = (user_id, result) => {
+  sql.query(
+    `SELECT EV.* , US.username,US.user_id, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id) AS joined, COALESCE(UI.interest, 0) AS interest\ 
+    FROM EventParticipant EP\
+    LEFT JOIN Event EV\
+         ON EP.event_id = EV.event_id\
+    LEFT JOIN EventParticipant HOST\
+         ON EV.host_id = HOST.event_participant_id\
+    LEFT JOIN UserInterest UI\ 
+         ON EP.participant_id = UI.user_id AND EV.event_id = UI.event_id\
+    LEFT JOIN User US\
+         ON US.user_id = HOST.participant_id\ 		
+         
+  WHERE  EP.participant_id = '${user_id}' AND\ 
+       EP.status_id = 'ST11' AND NOT\ 
+       HOST.participant_id = '${user_id}'\
+  `,
+    (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(err, null);
+        return;
+      }
+      if (res.length) {
+        console.log("found event: ", res);
+        result(null, res);
+        return;
+      }
+
+      // not found user with the this user id
+      result({ message: "not_found" }, null);
+      return;
+    }
+  );
+};
+
 module.exports = Event;

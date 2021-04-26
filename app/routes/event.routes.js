@@ -6,7 +6,11 @@ module.exports = function (app) {
 
   app.post("/api/event/uploadEventPic", controller.uploadEventPic);
 
+  app.post("/api/event/updateInterestEvent", controller.updateInterestEvent);
+
   app.get("/api/event/displayPic/:event_id", controller.displayPic);
 
   app.get("/api/event/getHostedEvent/:user_id", controller.getHostedEvent);
+
+  app.get("/api/event/getJoinedEvent/:user_id", controller.getJoinedEvent);
 };

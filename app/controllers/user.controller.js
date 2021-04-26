@@ -93,7 +93,7 @@ exports.getUserDetail = (req, res) => {
         firstname: user.firstname,
         lastname: user.lastname,
         phone: user.phone,
-        gender_id: user.gender_id,
+        gender: user.gender_name,
         birthdate: user.birthdate,
         profile_pic: user.profile_pic,
         bio: user.bio,

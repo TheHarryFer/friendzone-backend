@@ -14,6 +14,7 @@ const User = function (user) {
   this.phone = user.phone;
   this.profile_pic = user.profile_pic;
   this.bio = user.bio;
+  this.role_id = user.role_id;
   this.status_id = user.status_id;
   this.created_at = user.created_at;
   this.updated_at = user.updated_at;
@@ -131,7 +132,7 @@ User.getProfilePicturePath = (user_id, result) => {
 };
 
 User.getUser = (user_id, result) => {
-  sql.query(`SELECT * FROM User WHERE user_id = '${user_id}'`, (err, res) => {
+  sql.query(`SELECT US.*, GE.gender_name FROM User US LEFT JOIN Gender GE USING (gender_id) WHERE US.user_id = '${user_id}'`, (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(err, null);

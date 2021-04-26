@@ -2,6 +2,7 @@ const Event = require("../models/event.model.js");
 const EventParticipant = require("../models/eventParticipant.model.js");
 const EventCategory = require("../models/eventCategory.model.js");
 const EventGender = require("../models/eventGender.model.js");
+const UserInterest = require("../models/userInterest.model.js");
 const multer = require("multer");
 const fs = require("fs");
 const fsPromises = fs.promises;
@@ -15,7 +16,7 @@ function getTimeStamp() {
 function createEvent(eventParticipant, event, user_id) {
   eventParticipant.event_id = event.event_id;
   eventParticipant.participant_id = user_id;
-  eventParticipant.status_id = "ST12";
+  eventParticipant.status_id = "ST11";
   eventParticipant.created_at = getTimeStamp();
   eventParticipant.approved_at = getTimeStamp();
 
@@ -131,15 +132,14 @@ exports.create = (req, res) => {
       count = count.toString();
       var event_id = "EV" + count.padStart(6, "0");
       var event = new Event("");
-      var roles = req.body.role_id;
       const user_id = req.body.event.host_id;
       event = req.body.event;
 
-      if (roles.includes("RO01") || roles.includes("RO03")) {
+      if (req.body.role_id == "RO01" || req.body.role_id == "RO03") {
         event.approver_id = req.body.user_id;
         event.status_id = "ST03";
       } else {
-        event.status_id = "ST14";
+        event.status_id = "ST13";
       }
 
       event.event_id = event_id;
@@ -217,17 +217,46 @@ exports.displayPic = (req, res) => {
   });
 };
 
+exports.updateInterestEvent = (req, res) => {
+
+  UserInterest.findExist(
+    { user_id: req.body.user_id, event_id: req.body.event_id },
+    (err, res) => {
+      if (err) return res.status(500).send({ message: err.message });
+      else if (res) {
+        if (res.exist) {
+          req.body.updated_at = getTimeStamp();
+          UserInterest.update(req.body,
+            (err, res) => {
+              if (err) return res.status(500).send({ message: err.message });
+              else if (res) return res.status(200).send(res);
+            }
+          );
+        } else if (!res.exist) {
+          req.body.updated_at = getTimeStamp();
+          req.body.start_at = getTimeStamp();
+          UserInterest.create(req.body,
+            (err, res) => {
+              if (err) return res.status(500).send({ message: err.message });
+              else if (res) return res.status(200).send(res);
+            }
+          );
+        }
+      }
+    }
+  );
+};
+
 exports.getHostedEvent = (req, res) => {
   Event.getHostedEvent(req.params.user_id, (err, result) => {
     if (err) return res.status(500).send({ message: err.message });
-    if (result)
-      return res.status(200).send({
-        username: result.username,
-        event_id: result.event_id,
-        title: result.title,
-        description: result.description,
-        location: result.location,
-        start,
-      });
+    if (result) return res.status(200).send(result);
+  });
+};
+
+exports.getJoinedEvent = (req, res) => {
+  Event.getJoinedEvent(req.params.user_id, (err, result) => {
+    if (err) return res.status(500).send({ message: err.message });
+    if (result) return res.status(200).send(result);
   });
 };

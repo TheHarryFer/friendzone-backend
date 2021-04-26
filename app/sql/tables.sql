@@ -5,7 +5,6 @@ CREATE TABLE IF NOT EXISTS Chat(
     chat_id                 VARCHAR(8)      NOT NULL,
     sender_id               VARCHAR(8)      NOT NULL,
     message                 VARCHAR(256)    NOT NULL,
-    status_id               VARCHAR(4)      NOT NULL,
     created_at              BIGINT          NOT NULL,
     updated_at              BIGINT          NOT NULL,
     PRIMARY KEY (chat_id),
@@ -240,11 +239,12 @@ CREATE TABLE IF NOT EXISTS User(
     email                   VARCHAR(64)     NOT NULL,
     firstname               VARCHAR(64)     NOT NULL,
     lastname                VARCHAR(64)     NOT NULL,
-    birthdate               VARCHAR(8)      NOT NULL,
+    birthdate               BIGINT          NOT NULL,
     gender_id               VARCHAR(4)      NOT NULL,
     phone                   VARCHAR(10)     NOT NULL,
     profile_pic             VARCHAR(128)    NULL,
     bio                     VARCHAR(150)    NULL,
+    role_id                 VARCHAR(4)      NOT NULL,
     status_id               VARCHAR(4)      NOT NULL,
     created_at              BIGINT          NOT NULL,
     updated_at              BIGINT          NOT NULL,
@@ -284,15 +284,4 @@ CREATE TABLE IF NOT EXISTS UserInterest(
     updated_at              BIGINT          NOT NULL,
     PRIMARY KEY (user_id, event_id),
     UNIQUE      (user_id, event_id)
-    );
-
--- Create UserRole Table
-CREATE TABLE IF NOT EXISTS UserRole(
-    user_id                 VARCHAR(8)      NOT NULL,
-    role_id                 VARCHAR(4)      NOT NULL,
-    status                  BOOLEAN         NOT NULL,
-    created_at              BIGINT          NOT NULL,
-    updated_at              BIGINT          NOT NULL,
-    PRIMARY KEY (user_id, role_id),
-    UNIQUE      (user_id, role_id)
     );

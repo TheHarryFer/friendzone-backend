@@ -1,5 +1,4 @@
 const User = require("../models/user.model.js");
-const UserRole = require("../models/userRole.model.js");
 const config = require("../config/auth.config");
 
 const { validationResult } = require("express-validator");
@@ -37,6 +36,7 @@ exports.signup = (req, res) => {
       user.user_id = user_id;
       user.username = user.username.toLowerCase();
       user.email = user.email.toLowerCase();
+      user.role_id = "RO04";
       user.status_id = "ST02";
       user.created_at = getTimeStamp();
       user.updated_at = getTimeStamp();
@@ -46,34 +46,22 @@ exports.signup = (req, res) => {
         if (err) return res.status(500).send({ message: err.message });
         else {
           if (user.user_id) {
-            var userRole = new UserRole("");
+            const payload = {
+              user_id: user.user_id,
+              role_id: user.role_id
+            };
 
-            userRole.user_id = user.user_id;
-            userRole.role_id = ["RO04"];
-            userRole.status = true;
-            userRole.created_at = getTimeStamp();
-            userRole.updated_at = getTimeStamp();
+            var token = jwt.sign(payload, config.secret, {
+              expiresIn: 86400, // 24 hours
+            // expiresIn: 5,
+            });
 
-            UserRole.create(userRole, (err, userRole) => {
-              if (err) return res.status(500).send({ message: err.message });
-              else {
-                const payload = {
-                  user_id: user.user_id,
-                  role_id: userRole.role_id
-                };
+            res.cookie("user", token, { httpOnly: true, maxAge: 900000 });
 
-                var token = jwt.sign(payload, config.secret, {
-                  expiresIn: 86400, // 24 hours
-                // expiresIn: 5,
-                });
-                res.cookie("user", token, { httpOnly: true, maxAge: 900000 });
-
-                res.status(200).send({
-                  user_id: user.user_id,
-                  token
-                });
-              }
-            })
+            res.status(200).send({
+              user_id: user.user_id,
+              token
+            });
           }
         }
       });
@@ -99,31 +87,20 @@ exports.signin = (req, res) => {
         });
       }
 
-      UserRole.getUserRoles(user.user_id, (err, userRoles) => {
-        if (err) return res.status(500).send({ message: err.message });
-        else {
-          var userRolesArr = [];
+      const payload = {
+        user_id: user.user_id,
+        role_id: user.role_id
+      };
 
-          userRoles.forEach(role => {
-            userRolesArr.push(role.role_id);
-          });
+      var token = jwt.sign(payload, config.secret, {
+        expiresIn: 86400, // 24 hours
+        // expiresIn: 5,
+      });
+      res.cookie("user", token, { httpOnly: true, maxAge: 900000 });
 
-          const payload = {
-            user_id: user.user_id,
-            role_id: userRolesArr
-          };
-
-          var token = jwt.sign(payload, config.secret, {
-            expiresIn: 86400, // 24 hours
-            // expiresIn: 5,
-          });
-          res.cookie("user", token, { httpOnly: true, maxAge: 900000 });
-    
-          res.status(200).send({
-            token,
-          });
-        }
-      })
+      res.status(200).send({
+        token,
+      });
     }
   });
 };

@@ -3,8 +3,6 @@
 -- Add Foreign Key To Chat Table
 ALTER TABLE Chat
     ADD FOREIGN KEY (sender_id)         REFERENCES EventParticipant(event_participant_id)
-        ON UPDATE CASCADE ON DELETE CASCADE,
-    ADD FOREIGN KEY (status_id)         REFERENCES Status(status_id)
         ON UPDATE CASCADE ON DELETE CASCADE;
 
 -- Add Foreign Key To Discount Table
@@ -109,6 +107,8 @@ ALTER TABLE Report
 ALTER TABLE User
     ADD FOREIGN KEY (gender_id)         REFERENCES Gender(gender_id)
         ON UPDATE CASCADE ON DELETE CASCADE,
+    ADD FOREIGN KEY (role_id)           REFERENCES Role(role_id)
+        ON UPDATE CASCADE ON DELETE CASCADE,
     ADD FOREIGN KEY (status_id)         REFERENCES Status(status_id)
         ON UPDATE CASCADE ON DELETE CASCADE;
 
@@ -133,11 +133,4 @@ ALTER TABLE UserInterest
     ADD FOREIGN KEY (user_id)           REFERENCES User(user_id)
         ON UPDATE CASCADE ON DELETE CASCADE,
     ADD FOREIGN KEY (event_id)          REFERENCES Event(event_id)
-        ON UPDATE CASCADE ON DELETE CASCADE;
-
--- Add Foreign Key To UserRole Table
-ALTER TABLE UserRole
-    ADD FOREIGN KEY (user_id)           REFERENCES User(user_id)
-        ON UPDATE CASCADE ON DELETE CASCADE,
-    ADD FOREIGN KEY (role_id)           REFERENCES Role(role_id)
-        ON UPDATE CASCADE ON DELETE CASCADE;
+        ON UPDATE CASCADE ON DELETE CASCADE;   
