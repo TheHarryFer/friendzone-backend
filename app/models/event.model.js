@@ -103,7 +103,7 @@ Event.getEventPicturePath = (event_id, result) => {
 
 Event.getHostedEvent = (user_id, result) => {
   sql.query(
-    `SELECT EV.* , US.username,US.user_id, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id) AS joined, COALESCE(UI.interest, 0) AS interest\
+    `SELECT EV.* , US.username,US.user_id, EP.status_id, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id) AS joined, COALESCE(UI.interest, 0) AS interest\
     FROM EventParticipant EP\
     LEFT JOIN Event EV\ 
          ON EP.event_participant_id = EV.host_id\
@@ -111,10 +111,11 @@ Event.getHostedEvent = (user_id, result) => {
          ON US.user_id = EP.participant_id\
     LEFT JOIN UserInterest UI\ 
          ON EP.participant_id = UI.user_id AND EV.event_id = UI.event_id\
-    WHERE  EP.participant_id = '${user_id}' AND\ 
-           EP.status_id = 'ST11' AND \ 
+    WHERE  EP.participant_id = '${user_id}' AND NOT\ 
+           EP.status_id = 'ST15' AND \ 
            EV.host_id = EP.event_participant_id\
     GROUP BY EP.event_id , EV.host_id\
+    ORDER BY EV.start_at\
   `,
     (err, res) => {
       if (err) {
@@ -126,11 +127,11 @@ Event.getHostedEvent = (user_id, result) => {
         console.log("found event: ", res);
         result(null, res);
         return;
+      } else {
+        // not found user with the this user id
+        result({ message: "not_found" }, null);
+        return;
       }
-
-      // not found user with the this user id
-      result({ message: "not_found" }, null);
-      return;
     }
   );
 };
@@ -151,6 +152,7 @@ Event.getJoinedEvent = (user_id, result) => {
   WHERE  EP.participant_id = '${user_id}' AND\ 
        EP.status_id = 'ST11' AND NOT\ 
        HOST.participant_id = '${user_id}'\
+       ORDER BY EV.start_at\
   `,
     (err, res) => {
       if (err) {
@@ -162,13 +164,86 @@ Event.getJoinedEvent = (user_id, result) => {
         console.log("found event: ", res);
         result(null, res);
         return;
+      } else {
+        // not found user with the this user id
+        result({ message: "not_found" }, null);
+        return;
       }
-
-      // not found user with the this user id
-      result({ message: "not_found" }, null);
-      return;
     }
   );
 };
 
+Event.getRequestedEvent = (user_id, result) => {
+  sql.query(
+    `SELECT EV.* , US.username,US.user_id, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id) AS joined, COALESCE(UI.interest, 0) AS interest\ 
+    FROM EventParticipant EP\
+    LEFT JOIN Event EV\
+         ON EP.event_id = EV.event_id\
+    LEFT JOIN EventParticipant HOST\
+         ON EV.host_id = HOST.event_participant_id\
+    LEFT JOIN UserInterest UI\ 
+         ON EP.participant_id = UI.user_id AND EV.event_id = UI.event_id\
+    LEFT JOIN User US\
+         ON US.user_id = HOST.participant_id\ 		
+         
+  WHERE  EP.participant_id = '${user_id}' AND\ 
+       EP.status_id = 'ST11' AND NOT\ 
+       HOST.participant_id = '${user_id}'\
+       ORDER BY EV.start_at\
+  `,
+    (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(err, null);
+        return;
+      }
+      if (res.length) {
+        console.log("found event: ", res);
+        result(null, res);
+        return;
+      } else {
+        // not found user with the this user id
+        result({ message: "not_found" }, null);
+        return;
+      }
+    }
+  );
+};
+
+Event.getInterestedEvent = (user_id, result) => {
+  sql.query(
+    `SELECT EV.*, HOSTUSER.username,HOSTUSER.user_id,  (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id) AS joined,  COALESCE(UI.interest, 0) AS interest\
+    FROM User US\ 
+    LEFT JOIN UserInterest UI\ 
+         ON US.user_id = UI.user_id\
+    LEFT JOIN Event EV\ 
+         ON EV.event_id = UI.event_id\
+    LEFT JOIN EventParticipant HOST\
+         ON EV.host_id = HOST.event_participant_id\
+    LEFT JOIN User HOSTUSER\
+         ON HOSTUSER.user_id = HOST.participant_id\ 		
+         
+  WHERE  US.user_id = '${user_id}' AND\  
+       COALESCE(UI.interest, 0) = 1\
+       
+  ORDER BY EV.start_at \
+  `,
+    (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(err, null);
+        return;
+      }
+      if (res.length) {
+        console.log("found event: ", res);
+        result(null, res);
+        return;
+      } else {
+        // not found user with the this user id
+        result({ message: "not_found" }, null);
+        return;
+      }
+    }
+  );
+};
 module.exports = Event;

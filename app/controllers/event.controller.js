@@ -218,27 +218,26 @@ exports.displayPic = (req, res) => {
 };
 
 exports.updateInterestEvent = (req, res) => {
-
   UserInterest.findExist(
     { user_id: req.body.user_id, event_id: req.body.event_id },
-    (err, res) => {
+    (err, result) => {
       if (err) return res.status(500).send({ message: err.message });
       else if (res) {
-        if (res.exist) {
+        if (result.exist) {
           req.body.updated_at = getTimeStamp();
           UserInterest.update(req.body,
-            (err, res) => {
+            (err, userInterest) => {
               if (err) return res.status(500).send({ message: err.message });
-              else if (res) return res.status(200).send(res);
+              else if (userInterest) return res.status(200).send(userInterest);
             }
           );
-        } else if (!res.exist) {
+        } else if (!result.exist) {
           req.body.updated_at = getTimeStamp();
-          req.body.start_at = getTimeStamp();
+          req.body.created_at = getTimeStamp();
           UserInterest.create(req.body,
-            (err, res) => {
+            (err, userInterest) => {
               if (err) return res.status(500).send({ message: err.message });
-              else if (res) return res.status(200).send(res);
+              else if (userInterest) return res.status(200).send(userInterest);
             }
           );
         }
@@ -256,6 +255,20 @@ exports.getHostedEvent = (req, res) => {
 
 exports.getJoinedEvent = (req, res) => {
   Event.getJoinedEvent(req.params.user_id, (err, result) => {
+    if (err) return res.status(500).send({ message: err.message });
+    if (result) return res.status(200).send(result);
+  });
+};
+
+exports.getRequestedEvent = (req, res) => {
+  Event.getRequestedEvent(req.params.user_id, (err, result) => {
+    if (err) return res.status(500).send({ message: err.message });
+    if (result) return res.status(200).send(result);
+  });
+};
+
+exports.getInterestedEvent = (req, res) => {
+  Event.getInterestedEvent(req.params.user_id, (err, result) => {
     if (err) return res.status(500).send({ message: err.message });
     if (result) return res.status(200).send(result);
   });

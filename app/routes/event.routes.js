@@ -13,4 +13,8 @@ module.exports = function (app) {
   app.get("/api/event/getHostedEvent/:user_id", controller.getHostedEvent);
 
   app.get("/api/event/getJoinedEvent/:user_id", controller.getJoinedEvent);
+
+  app.get("/api/event/getRequestedEvent/:user_id", controller.getRequestedEvent);
+
+  app.get("/api/event/getInterestedEvent/:user_id", controller.getInterestedEvent);
 };
