@@ -35,6 +35,8 @@ require("./app/routes/user.routes")(app);
 require("./app/routes/gender.routes")(app);
 require("./app/routes/event.routes")(app);
 require("./app/routes/category.routes")(app);
+require("./app/routes/chat.routes")(app);
+
 
 //listening
 const PORT = process.env.PORT || 8080;

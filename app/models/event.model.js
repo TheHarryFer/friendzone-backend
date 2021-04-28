@@ -103,7 +103,7 @@ Event.getEventPicturePath = (event_id, result) => {
 
 Event.getHostedEvent = (user_id, result) => {
   sql.query(
-    `SELECT EV.* , US.username,US.user_id, EP.status_id, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id) AS joined, COALESCE(UI.interest, 0) AS interest\
+    `SELECT EV.* , US.username,US.user_id, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id) AS joined, COALESCE(UI.interest, 0) AS interest\
     FROM EventParticipant EP\
     LEFT JOIN Event EV\ 
          ON EP.event_participant_id = EV.host_id\
@@ -129,7 +129,7 @@ Event.getHostedEvent = (user_id, result) => {
         return;
       } else {
         // not found user with the this user id
-        result({ message: "not_found" }, null);
+        result(null, { message: "not_found" });
         return;
       }
     }
@@ -166,7 +166,7 @@ Event.getJoinedEvent = (user_id, result) => {
         return;
       } else {
         // not found user with the this user id
-        result({ message: "not_found" }, null);
+        result(null, { message: "not_found" });
         return;
       }
     }
@@ -175,21 +175,20 @@ Event.getJoinedEvent = (user_id, result) => {
 
 Event.getRequestedEvent = (user_id, result) => {
   sql.query(
-    `SELECT EV.* , US.username,US.user_id, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id) AS joined, COALESCE(UI.interest, 0) AS interest\ 
+    `SELECT EV.* , US.username,US.user_id, IF(EP.status_id = 'ST15', 1 ,0) AS rejected , (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id) AS joined,  COALESCE(UI.interest, 0) AS interest\ 
     FROM EventParticipant EP\
-    LEFT JOIN Event EV\
+    LEFT JOIN Event EV\ 
          ON EP.event_id = EV.event_id\
     LEFT JOIN EventParticipant HOST\
          ON EV.host_id = HOST.event_participant_id\
-    LEFT JOIN UserInterest UI\ 
+    LEFT JOIN UserInterest UI \
          ON EP.participant_id = UI.user_id AND EV.event_id = UI.event_id\
     LEFT JOIN User US\
-         ON US.user_id = HOST.participant_id\ 		
-         
-  WHERE  EP.participant_id = '${user_id}' AND\ 
-       EP.status_id = 'ST11' AND NOT\ 
-       HOST.participant_id = '${user_id}'\
-       ORDER BY EV.start_at\
+         ON US.user_id = HOST.participant_id\
+
+  WHERE  EP.participant_id = '${user_id}' AND\
+       EP.status_id = 'ST13' OR  EP.status_id = 'ST15'\
+  ORDER BY EV.start_at\
   `,
     (err, res) => {
       if (err) {
@@ -203,7 +202,7 @@ Event.getRequestedEvent = (user_id, result) => {
         return;
       } else {
         // not found user with the this user id
-        result({ message: "not_found" }, null);
+        result(null, { message: "not_found" });
         return;
       }
     }
@@ -240,7 +239,7 @@ Event.getInterestedEvent = (user_id, result) => {
         return;
       } else {
         // not found user with the this user id
-        result({ message: "not_found" }, null);
+        result(null, { message: "not_found" });
         return;
       }
     }
