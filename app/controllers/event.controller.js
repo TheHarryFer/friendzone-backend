@@ -73,6 +73,35 @@ function createGender(genderList) {
   });
 }
 
+function getApi (event) {
+  let promise = new Promise((resolve, reject) => {
+    EventGender.getEventGenderList(event.event_id, (err, eventGenderList) => {
+          if (err) return res.status(500).send({ message : err.message })
+          else {
+            resolve(eventGenderList)
+          }
+    }) 
+  })
+    promise.then(values => {
+    event.gender = values   
+    console.log("first", event)  
+    return event;
+})
+}
+
+function getEventGenderList(eventList) {
+  let eventArrayList = [];
+  const promise1 = new Promise((resolve,reject) => {
+    for (let event of eventList) {
+      resolve(getApi(event))
+  }});
+
+  promise1.then((eventArrayList) => {
+  console.log("second = " , eventArrayList)
+  return eventArrayList;
+  }) 
+}
+
 exports.uploadEventPic = (req, res) => {
   fsPromises
     .mkdir(_eventPicDir + req.query.event_id, { recursive: true }, (err) => {
@@ -246,30 +275,77 @@ exports.updateInterestEvent = (req, res) => {
   );
 };
 
-exports.getHostedEvent = (req, res) => {
+
+exports.getHostedEvent = (req, res) =>  {
   Event.getHostedEvent(req.params.user_id, (err, result) => {
     if (err) return res.status(500).send({ message: err.message });
-    if (result) return res.status(200).send(result);
-  });
+    else {
+      if (result.message != "not_found") {
+        let newResult =  getEventGenderList(result)
+        console.log("Third = " , newResult)
+        return res.status(200).send(newResult);
+      }
+      return res.status(200).send(result);
+    }
+  }
 };
 
 exports.getJoinedEvent = (req, res) => {
   Event.getJoinedEvent(req.params.user_id, (err, result) => {
     if (err) return res.status(500).send({ message: err.message });
-    if (result) return res.status(200).send(result);
+    else {
+      if (result.message != "not_found") {
+        result.forEach(event => {
+          EventGender.getEventGenderList(event.event_id, (err, eventGenderList) => {
+            if (err) return res.status(500).send({ message : err.message })
+            else {
+              event.gender = eventGenderList;
+            }
+          })
+        })
+      }
+
+      return res.status(200).send(result);
+    }
   });
 };
 
 exports.getRequestedEvent = (req, res) => {
   Event.getRequestedEvent(req.params.user_id, (err, result) => {
     if (err) return res.status(500).send({ message: err.message });
-    if (result) return res.status(200).send(result);
+    else {
+      if (result.message != "not_found") {
+        result.forEach(event => {
+          EventGender.getEventGenderList(event.event_id, (err, eventGenderList) => {
+            if (err) return res.status(500).send({ message : err.message })
+            else {
+              event.gender = eventGenderList;
+            }
+          })
+        })
+      }
+
+      return res.status(200).send(result);
+    }
   });
 };
 
 exports.getInterestedEvent = (req, res) => {
   Event.getInterestedEvent(req.params.user_id, (err, result) => {
     if (err) return res.status(500).send({ message: err.message });
-    if (result) return res.status(200).send(result);
+    else {
+      if (result.message != "not_found") {
+        result.forEach(event => {
+          EventGender.getEventGenderList(event.event_id, (err, eventGenderList) => {
+            if (err) return res.status(500).send({ message : err.message })
+            else {
+              event.gender = eventGenderList;
+            }
+          })
+        })
+      }
+        
+      return res.status(200).send(result);
+    }
   });
 };

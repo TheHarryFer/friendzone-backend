@@ -187,7 +187,7 @@ Event.getRequestedEvent = (user_id, result) => {
          ON US.user_id = HOST.participant_id\
 
   WHERE  EP.participant_id = '${user_id}' AND\
-       EP.status_id = 'ST13' OR  EP.status_id = 'ST15'\
+         (EP.status_id = 'ST13' OR  EP.status_id = 'ST15')\
   ORDER BY EV.start_at\
   `,
     (err, res) => {

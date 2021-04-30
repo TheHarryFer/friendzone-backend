@@ -44,4 +44,114 @@ Chat.create = (newChat, result) => {
   );
 };
 
+
+
+
+Chat.getChatList = (user_id, result) => {
+  sql.query(
+    `SELECT EV.title,EV.event_id ,(SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id) AS joined, 
+    EV.max_participant, 
+    (SELECT CH.message
+         FROM Chat CH
+         WHERE CH.sender_id = EP.event_participant_id
+         ORDER BY CH.created_at DESC
+         LIMIT 1 ) AS message, 
+     
+     (SELECT SENDER.participant_id
+    FROM Chat CH, EventParticipant SENDER		
+    WHERE CH.sender_id = SENDER.event_participant_id AND 
+      CH.sender_id = EP.event_participant_id
+    ORDER BY CH.created_at DESC
+    LIMIT 1 ) AS sender_id 
+                  
+    FROM EventParticipant EP 
+    LEFT JOIN Event EV 
+    ON EV.event_id = EP.event_id
+    WHERE EP.participant_id = '${user_id}'
+  `,
+    (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(err, null);
+        return;
+      }
+      if (res.length) {
+        console.log("found event: ", res);
+        result(null, res);
+        return;
+      } else {
+        // not found user with the this user id
+        result(null, { message: "not_found" });
+        return;
+      }
+    }
+  );
+};
+
+Chat.getChatHead = (event_id, result) => {
+  sql.query(
+  `SELECT EV.title, US.username, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id) AS joined, EV.max_participant
+      FROM Event EV
+      LEFT JOIN EventParticipant EP  
+        ON EV.event_id = EP.event_id
+      LEFT JOIN User US 
+        ON US.user_id = EP.participant_id
+        
+    WHERE EV.event_id = '${event_id}' AND 
+        EV.host_id = EP.event_participant_id
+        '
+  `,
+    (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(err, null);
+        return;
+      }
+      if (res.length) {
+        console.log("found event: ", res);
+        result(null, res);
+        return;
+      } else {
+        // not found user with the this user id
+        result(null, { message: "not_found" });
+        return;
+      }
+    }
+  );
+};
+
+
+Chat.getChatHead = (event_id, result) => {
+  sql.query(
+  `SELECT EV.title, US.username, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id) AS joined, EV.max_participant
+      FROM Event EV
+      LEFT JOIN EventParticipant EP  
+        ON EV.event_id = EP.event_id
+      LEFT JOIN User US 
+        ON US.user_id = EP.participant_id
+        
+    WHERE EV.event_id = '${event_id}' AND 
+        EV.host_id = EP.event_participant_id
+        '
+  `,
+    (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(err, null);
+        return;
+      }
+      if (res.length) {
+        console.log("found event: ", res);
+        result(null, res);
+        return;
+      } else {
+        // not found user with the this user id
+        result(null, { message: "not_found" });
+        return;
+      }
+    }
+  );
+};
+
+
 module.exports = Chat;
