@@ -25,4 +25,24 @@ EventCategory.create = (newEventCategory, result) => {
   );
 };
 
+EventCategory.getEventCategoryList = (event_id, result) => {
+  sql.query(
+    `SELECT CA.category_name\
+      FROM EventCategory EC\
+      LEFT JOIN Category CA\ 
+        ON EC.category_id = CA.category_id\
+      WHERE EC.event_id = '${event_id}'\
+        AND EC.status = 1
+      `,
+    (err, res) => {
+      if (err) {
+        console.log("error : ", err);
+        result(err, null);
+        return;
+      }
+      result(null, res);
+    }
+  );
+};
+
 module.exports = EventCategory;

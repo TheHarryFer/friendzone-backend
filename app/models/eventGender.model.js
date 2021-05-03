@@ -26,13 +26,12 @@ EventGender.create = (newEventGender, result) => {
 
 EventGender.getEventGenderList = (event_id, result) => {
   sql.query(
-    `SELECT GE.gender_name
-      FROM EventGender EG
-      LEFT JOIN Gender GE 
-        ON EG.gender_id = GE.gender_id
-      LEFT JOIN Event EV 
-        ON EV.event_id = EG.event_id 
-      WHERE EV.event_id = '${event_id}'
+    `SELECT GE.gender_name\
+      FROM EventGender EG\
+      LEFT JOIN Gender GE\ 
+        ON EG.gender_id = GE.gender_id\
+      WHERE EG.event_id = '${event_id}'\
+        AND EG.status = 1
       `,
     (err, res) => {
       if (err) {

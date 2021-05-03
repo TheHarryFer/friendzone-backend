@@ -9,6 +9,10 @@ module.exports = function (app) {
   app.post("/api/event/updateInterestEvent", controller.updateInterestEvent);
 
   app.get("/api/event/displayPic/:event_id", controller.displayPic);
+  
+  app.get("/api/event/getEventGenderList/:event_id", controller.getEventGenderList);
+
+  app.get("/api/event/getEventCategoryList/:event_id", controller.getEventCategoryList);
 
   app.get("/api/event/getHostedEvent/:user_id", controller.getHostedEvent);
 
