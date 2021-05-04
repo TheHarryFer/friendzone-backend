@@ -21,4 +21,8 @@ module.exports = function (app) {
   app.get("/api/event/getRequestedEvent/:user_id", controller.getRequestedEvent);
 
   app.get("/api/event/getInterestedEvent/:user_id", controller.getInterestedEvent);
+
+  app.get("/api/event/getEventParticipantList/:event_id", controller.getEventParticipantList);
+
+  app.get("/api/event/getParticipantToReview", controller.getParticipantToReview);
 };

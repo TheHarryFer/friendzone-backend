@@ -71,29 +71,14 @@ Chat.create = (newChat, result) => {
 Chat.getChatList = (user_id, result) => {
   sql.query(
     `SELECT EV.title,EV.event_id ,(SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id) AS joined,\ 
-            EV.max_participant, \
-            (SELECT CH.message\
-                FROM Chat CH\
-                WHERE CH.sender_id = EP.event_participant_id\
-                ORDER BY CH.created_at DESC\
-                LIMIT 1 ) AS message,\ 
-     
-            (SELECT SENDER.participant_id\
-                FROM Chat CH, EventParticipant SENDER\	
-                WHERE CH.sender_id = SENDER.event_participant_id AND\ 
-                CH.sender_id = EP.event_participant_id\
-                ORDER BY CH.created_at DESC\
-                LIMIT 1 ) AS sender_id,\
-    
-            (SELECT CH.created_at\
-                FROM Chat CH\
-                WHERE CH.sender_id = EP.event_participant_id\
-                ORDER BY CH.created_at DESC\
-                LIMIT 1 ) AS created_at\
-                  
+    EV.max_participant, CH.message, CH.created_at, (SELECT EP.participant_id FROM EventParticipant EP WHERE CH.sender_id = EP.event_participant_id) AS participant_id\		   	       
     FROM EventParticipant EP \
-    LEFT JOIN Event EV\ 
-         ON EV.event_id = EP.event_id\
+    LEFT JOIN Event EV \
+    ON EV.event_id = EP.event_id\
+    LEFT JOIN EventParticipant CHATEP \
+    ON CHATEP.event_id = EP.event_id\
+    LEFT JOIN Chat CH\
+      ON CH.sender_id = CHATEP.event_participant_id\
     WHERE EP.participant_id = '${user_id}'\
     GROUP BY EV.event_id\
   `,

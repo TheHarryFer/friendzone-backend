@@ -1,4 +1,5 @@
 const Event = require("../models/event.model.js");
+const ParticipantReview = require("../models/participantReview.model.js");
 const EventParticipant = require("../models/eventParticipant.model.js");
 const EventCategory = require("../models/eventCategory.model.js");
 const EventGender = require("../models/eventGender.model.js");
@@ -279,6 +280,23 @@ exports.getRequestedEvent = (req, res) => {
 
 exports.getInterestedEvent = (req, res) => {
   Event.getInterestedEvent(req.params.user_id, (err, result) => {
+    if (err) return res.status(500).send({ message: err.message });
+    else return res.status(200).send(result);
+  });
+};
+
+exports.getEventParticipantList = (req, res) => {
+  EventParticipant.getEventParticipantList(req.params.event_id, (err, result) => {
+    if (err) return res.status(500).send({ message: err.message });
+    else return res.status(200).send(result);
+  });
+};
+
+exports.getParticipantToReview = (req, res) => {
+  ParticipantReview.getParticipantToReview({
+      event_id: req.query.event_id, 
+      user_id: req.query.user_id
+    }, (err, result) => {
     if (err) return res.status(500).send({ message: err.message });
     else return res.status(200).send(result);
   });

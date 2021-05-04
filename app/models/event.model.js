@@ -103,7 +103,7 @@ Event.getEventPicturePath = (event_id, result) => {
 
 Event.getHostedEvent = (user_id, result) => {
   sql.query(
-    `SELECT EV.* , US.username,US.user_id, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id) AS joined, COALESCE(UI.interest, 0) AS interest\
+    `SELECT EV.* , US.username,US.user_id, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id AND status_id = 'ST11') AS joined, COALESCE(UI.interest, 0) AS interest\
     FROM EventParticipant EP\
     LEFT JOIN Event EV\ 
          ON EP.event_participant_id = EV.host_id\
@@ -138,7 +138,7 @@ Event.getHostedEvent = (user_id, result) => {
 
 Event.getJoinedEvent = (user_id, result) => {
   sql.query(
-    `SELECT EV.* , US.username,US.user_id, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id) AS joined, COALESCE(UI.interest, 0) AS interest\ 
+    `SELECT EV.* , US.username,US.user_id, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id AND status_id = 'ST11') AS joined, COALESCE(UI.interest, 0) AS interest\ 
     FROM EventParticipant EP\
     LEFT JOIN Event EV\
          ON EP.event_id = EV.event_id\
@@ -175,7 +175,7 @@ Event.getJoinedEvent = (user_id, result) => {
 
 Event.getRequestedEvent = (user_id, result) => {
   sql.query(
-    `SELECT EV.* , US.username,US.user_id, IF(EP.status_id = 'ST15', 1 ,0) AS rejected , (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id) AS joined,  COALESCE(UI.interest, 0) AS interest\ 
+    `SELECT EV.* , US.username,US.user_id, IF(EP.status_id = 'ST15', 1 ,0) AS rejected , (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id AND status_id = 'ST11') AS joined,  COALESCE(UI.interest, 0) AS interest\ 
     FROM EventParticipant EP\
     LEFT JOIN Event EV\ 
          ON EP.event_id = EV.event_id\
@@ -211,7 +211,7 @@ Event.getRequestedEvent = (user_id, result) => {
 
 Event.getInterestedEvent = (user_id, result) => {
   sql.query(
-    `SELECT EV.*, HOSTUSER.username,HOSTUSER.user_id,  (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id) AS joined,  COALESCE(UI.interest, 0) AS interest\
+    `SELECT EV.*, HOSTUSER.username,HOSTUSER.user_id,  (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id AND status_id = 'ST11') AS joined,  COALESCE(UI.interest, 0) AS interest\
     FROM User US\ 
     LEFT JOIN UserInterest UI\ 
          ON US.user_id = UI.user_id\
