@@ -6,7 +6,9 @@ const fsPromises = fs.promises;
 const _profilePicDir = "./data/user/";
 const path = require("path");
 
-function getTimeStamp() {return Math.floor(Date.now() / 1000)}
+function getTimeStamp() {
+  return new Date().getTime();
+}
 
 exports.uploadPic = (req, res) => {
   fsPromises

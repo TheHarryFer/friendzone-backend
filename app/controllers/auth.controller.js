@@ -7,7 +7,7 @@ var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 
 function getTimeStamp() {
-  return Math.floor(Date.now() / 1000);
+  return new Date().getTime();
 }
 
 exports.signup = (req, res) => {

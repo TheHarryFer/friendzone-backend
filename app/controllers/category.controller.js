@@ -6,7 +6,7 @@ const _profilePicDir = "./data/category/";
 const path = require("path");
 
 function getTimeStamp() {
-  return Math.floor(Date.now() / 1000);
+  return new Date().getTime();
 }
 
 exports.create = (req, res) => {

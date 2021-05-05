@@ -11,7 +11,7 @@ const _eventPicDir = "./data/event/";
 const path = require("path");
 
 function getTimeStamp() {
-  return Math.floor(Date.now() / 1000);
+  return new Date().getTime();
 }
 
 function createEvent(eventParticipant, event, user_id) {
@@ -192,6 +192,38 @@ exports.create = (req, res) => {
   });
 };
 
+exports.joinEvent = (req, res) => {
+  if (!req.body) {
+    return res.status(400).send({
+      message: "Content can not be empty!",
+    });
+  }
+
+  EventParticipant.getCount((err, count) => {
+    if (err) return res.status(500).send({ message: err.message });
+    else {
+      count++;
+      count = count.toString();
+      var event_participant_id = "EP" + count.padStart(6, "0");
+      var eventParticipant = new EventParticipant("");
+
+      eventParticipant.event_participant_id = event_participant_id;
+      eventParticipant.event_id = req.body.event_id;
+      eventParticipant.participant_id = req.body.user_id;
+      eventParticipant.status_id = "ST13";
+      eventParticipant.created_at = getTimeStamp();
+      eventParticipant.approved_at = getTimeStamp();
+
+      EventParticipant.create(eventParticipant, (err, result) => {
+        if (err) return res.status(500).send({ message: err.message });
+        else {
+          return res.status(200).send(result);
+        }
+      });
+    }
+  });
+};
+
 exports.displayPic = (req, res) => {
   Event.getEventPicturePath(req.params.event_id, (err, event) => {
     if (err) return res.status(500).send({ message: err.message });
@@ -286,18 +318,42 @@ exports.getInterestedEvent = (req, res) => {
 };
 
 exports.getEventParticipantList = (req, res) => {
-  EventParticipant.getEventParticipantList(req.params.event_id, (err, result) => {
+  EventParticipant.getEventParticipantList(
+    req.params.event_id,
+    (err, result) => {
+      if (err) return res.status(500).send({ message: err.message });
+      else return res.status(200).send(result);
+    }
+  );
+};
+
+exports.getParticipantToReview = (req, res) => {
+  ParticipantReview.getParticipantToReview(
+    {
+      event_id: req.query.event_id,
+      user_id: req.query.user_id,
+    },
+    (err, result) => {
+      if (err) return res.status(500).send({ message: err.message });
+      else return res.status(200).send(result);
+    }
+  );
+};
+
+exports.getUserCateogryInterestEvent = (req, res) => {
+  Event.getUserCateogryInterestEvent(req.params.user_id, (err, result) => {
     if (err) return res.status(500).send({ message: err.message });
     else return res.status(200).send(result);
   });
 };
 
-exports.getParticipantToReview = (req, res) => {
-  ParticipantReview.getParticipantToReview({
-      event_id: req.query.event_id, 
-      user_id: req.query.user_id
-    }, (err, result) => {
-    if (err) return res.status(500).send({ message: err.message });
-    else return res.status(200).send(result);
-  });
+exports.getEventByCategory = (req, res) => {
+  Event.getEventByCategory(
+    req.params.user_id,
+    req.params.category_id,
+    (err, result) => {
+      if (err) return res.status(500).send({ message: err.message });
+      else return res.status(200).send(result);
+    }
+  );
 };

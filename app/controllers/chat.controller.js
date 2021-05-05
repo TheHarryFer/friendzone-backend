@@ -1,7 +1,7 @@
 const Chat = require("../models/chat.model.js");
 
 function getTimeStamp() {
-  return Math.floor(Date.now() / 1000);
+  return new Date().getTime();
 }
 
 exports.create = (req, res) => {
@@ -41,8 +41,7 @@ exports.getChatList = (req, res) => {
 
   Chat.getChatList(req.params.user_id, (err, chatList) => {
     if (err) return res.status(500).send({ message: err.message });
-    if (chatList)
-      return res.status(200).send(chatList);
+    if (chatList) return res.status(200).send(chatList);
   });
 };
 
@@ -55,8 +54,7 @@ exports.getChatHead = (req, res) => {
 
   Chat.getChatHead(req.params.event_id, (err, chatHead) => {
     if (err) return res.status(500).send({ message: err.message });
-    if (chatHead)
-      return res.status(200).send(chatHead);
+    if (chatHead) return res.status(200).send(chatHead);
   });
 };
 
@@ -69,7 +67,6 @@ exports.getMessages = (req, res) => {
 
   Chat.getMessages(req.params.event_id, (err, messages) => {
     if (err) return res.status(500).send({ message: err.message });
-    if (messages)
-      return res.status(200).send(messages);
+    if (messages) return res.status(200).send(messages);
   });
 };
