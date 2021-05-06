@@ -6,7 +6,7 @@ const EventParticipant = function (eventParticipant) {
   this.participant_id = eventParticipant.participant_id;
   this.status_id = eventParticipant.status_id;
   this.created_at = eventParticipant.created_at;
-  this.approved_at = eventParticipant.approved_at;
+  this.updated_at = eventParticipant.updated_at;
 };
 
 EventParticipant.getCount = (result) => {
@@ -27,7 +27,7 @@ EventParticipant.getCount = (result) => {
 
 EventParticipant.create = (newEventParticipant, result) => {
   sql.query(
-    `INSERT INTO EventParticipant SET ?`,
+    `INSERT INTO EventParticipant SET ? ON DUPLICATE KEY UPDATE status_id = '${newEventParticipant.status_id}', updated_at = ${newEventParticipant.updated_at}`,
     newEventParticipant,
     (err, res) => {
       if (err) {
@@ -42,10 +42,25 @@ EventParticipant.create = (newEventParticipant, result) => {
   );
 };
 
+EventParticipant.update = (data, result) => {
+  sql.query(
+    `UPDATE EventParticipant SET status_id = '${data.status_id}', updated_at = '${data.updated_at}' WHERE event_id = '${data.event_id}' AND participant_id = '${data.participant_id}'`,
+    (err, res) => {
+      if (err) {
+        console.log("error : ", err);
+        result(err, null);
+        return;
+      }
+
+      //console.log("Updated event participant : ", { ...data });
+      result(null, { ...data });
+    }
+  );
+};
+
 EventParticipant.getEventParticipantList = (event_id, result) => {
   sql.query(
     `SELECT
-        EP.event_participant_id,
         US.user_id,
         US.username,
         EP.status_id,
@@ -66,7 +81,7 @@ EventParticipant.getEventParticipantList = (event_id, result) => {
             EP.status_id = 'ST11'
             OR EP.status_id = 'ST13'
         )
-    ORDER BY host DESC, moderator DESC, EP.approved_at
+    ORDER BY host DESC, moderator DESC, EP.updated_at
     `,
     (err, res) => {
       if (err) {

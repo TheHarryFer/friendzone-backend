@@ -64,7 +64,7 @@ Event.uploadEventPic = (data, result) => {
 
 Event.updateHost = (data, result) => {
   sql.query(
-    `Update Event SET host_id = "${data.host_id}" WHERE event_id = "${data.event_id}"`,
+    `UPDATE Event SET host_id = "${data.host_id}" WHERE event_id = "${data.event_id}"`,
     (err, res) => {
       if (err) {
         console.log("error : ", err);
@@ -187,7 +187,8 @@ Event.getRequestedEvent = (user_id, result) => {
          ON US.user_id = HOST.participant_id\
 
   WHERE  EP.participant_id = '${user_id}' AND\
-         (EP.status_id = 'ST13' OR  EP.status_id = 'ST15')\
+         (EP.status_id = 'ST13' OR  EP.status_id = 'ST15') AND\
+         EV.end_at > ROUND(UNIX_TIMESTAMP(CURTIME(4)) * 1000)\
   ORDER BY EV.start_at\
   `,
     (err, res) => {
@@ -248,26 +249,32 @@ Event.getInterestedEvent = (user_id, result) => {
 
 Event.getUserCateogryInterestEvent = (user_id, result) => {
   sql.query(
-    `SELECT EV.* , US.username,US.user_id, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id) AS joined, 
-    COALESCE((SELECT interest FROM UserInterest WHERE user_id = '${user_id}' AND event_id = EP.event_id ),0) AS interest
-FROM EventParticipant EP
-LEFT JOIN Event EV
-    ON EP.event_participant_id = EV.host_id
-LEFT JOIN User US
-    ON US.user_id = EP.participant_id
-LEFT JOIN EventCategory EC
-    ON EV.event_id = EC.event_id
-LEFT JOIN UserCategory UC
-    ON US.user_id = UC.user_id
-WHERE NOT EP.participant_id = '${user_id}' AND NOT 
-         EP.status_id = 'ST15' AND NOT
-         EV.event_id IN (SELECT EP.event_id FROM EventParticipant EP WHERE EP.participant_id = '${user_id}') AND
-         UC.category_id = EC.category_id AND 
-         EC.status = 1 AND 
-         UC.interest = 1
-GROUP BY EP.event_id , EV.host_id
-ORDER BY RAND()
-LIMIT 20
+    `
+    SELECT EV.* , US.username,US.user_id, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id) AS joined, 
+        COALESCE((SELECT interest FROM UserInterest WHERE user_id = '${user_id}'  AND event_id = EP.event_id ),0) AS interest
+    FROM EventParticipant EP
+    LEFT JOIN Event EV
+        ON EP.event_participant_id = EV.host_id
+    LEFT JOIN User US
+        ON US.user_id = EP.participant_id
+    LEFT JOIN EventCategory EC
+        ON EV.event_id = EC.event_id
+    LEFT JOIN UserCategory UC
+        ON US.user_id = UC.user_id
+    WHERE    NOT EP.status_id = 'ST15' AND 
+           (NOT EV.event_id IN (SELECT EP.event_id 
+                        FROM EventParticipant EP 
+                        WHERE EP.participant_id = '${user_id}') OR
+                EV.event_id IN (SELECT EP.event_id 
+                                FROM EventParticipant EP 
+                                WHERE EP.participant_id = '${user_id}' AND EP.status_id = 'ST12')) AND
+                                
+             UC.category_id = EC.category_id AND 
+             EC.status = 1 AND UC.interest = 1 AND 
+             EV.end_at > ROUND(UNIX_TIMESTAMP(CURTIME(4)) * 1000)
+    GROUP BY EP.event_id , EV.host_id
+    ORDER BY RAND()
+    LIMIT 20
   `,
     (err, res) => {
       if (err) {
@@ -290,24 +297,23 @@ LIMIT 20
 
 Event.getEventByCategory = (user_id, category_id, result) => {
   sql.query(
-    `SELECT EV.* , US.username,US.user_id, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id) AS joined, COALESCE((SELECT interest FROM UserInterest WHERE user_id = '${user_id}' AND event_id = EP.event_id ),0) AS interest\
-    FROM EventParticipant EP\
-    LEFT JOIN Event EV\
-         ON EP.event_participant_id = EV.host_id\
-    LEFT JOIN User US\
-         ON US.user_id = EP.participant_id\
-    LEFT JOIN UserInterest UI\
-         ON EP.participant_id = UI.user_id AND EV.event_id = UI.event_id\
-    LEFT JOIN EventCategory EC \
-         ON EV.event_id = EC.event_id\
-    WHERE NOT EP.participant_id = '${user_id}' AND NOT \
-              EP.status_id = 'ST15' AND \
-              EV.host_id = EP.event_participant_id AND \
-              EC.category_id = '${category_id}' AND \
-              EC.status = 1\
-    GROUP BY EP.event_id , EV.host_id\
-    ORDER BY RAND()\
-    LIMIT 20\
+    `SELECT EV.* , US.username,US.user_id, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id) AS joined,
+     COALESCE((SELECT interest FROM UserInterest WHERE user_id = '${user_id}' AND event_id = EP.event_id ),0) AS interest
+     FROM EventParticipant EP
+     LEFT JOIN Event EV
+         ON EP.event_participant_id = EV.host_id
+     LEFT JOIN User US
+         ON US.user_id = EP.participant_id
+     LEFT JOIN EventCategory EC 
+         ON EV.event_id = EC.event_id
+     WHERE NOT EP.participant_id = '${user_id}' AND NOT 
+              EV.event_id IN (SELECT EP.event_id FROM EventParticipant EP WHERE EP.participant_id = '${user_id}') AND
+              EV.host_id = EP.event_participant_id AND 
+              EC.category_id = '${category_id}' AND 
+              EC.status = 1
+     GROUP BY EP.event_id , EV.host_id
+     ORDER BY RAND()
+     LIMIT 20
   `,
     (err, res) => {
       if (err) {

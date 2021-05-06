@@ -19,7 +19,7 @@ function createEvent(eventParticipant, event, user_id) {
   eventParticipant.participant_id = user_id;
   eventParticipant.status_id = "ST11";
   eventParticipant.created_at = getTimeStamp();
-  eventParticipant.approved_at = getTimeStamp();
+  eventParticipant.updated_at = getTimeStamp();
 
   EventParticipant.create(eventParticipant, (err, eventParticipant) => {
     if (err) return res.status(500).send({ message: err.message });
@@ -212,7 +212,7 @@ exports.joinEvent = (req, res) => {
       eventParticipant.participant_id = req.body.user_id;
       eventParticipant.status_id = "ST13";
       eventParticipant.created_at = getTimeStamp();
-      eventParticipant.approved_at = getTimeStamp();
+      eventParticipant.updated_at = getTimeStamp();
 
       EventParticipant.create(eventParticipant, (err, result) => {
         if (err) return res.status(500).send({ message: err.message });
@@ -221,6 +221,66 @@ exports.joinEvent = (req, res) => {
         }
       });
     }
+  });
+};
+
+exports.cancelRequest = (req, res) => {
+  if (!req.body) {
+    return res.status(400).send({
+      message: "Content can not be empty!",
+    });
+  }
+
+  let eventParticipant = {
+    event_id: req.body.event_id,
+    participant_id: req.body.user_id,
+    status_id: "ST12",
+    updated_at: getTimeStamp(),
+  };
+
+  EventParticipant.update(eventParticipant, (err, result) => {
+    if (err) return res.status(500).send({ message: err.message });
+    else return res.status(200).send(result);
+  });
+};
+
+exports.approveRequest = (req, res) => {
+  if (!req.body) {
+    return res.status(400).send({
+      message: "Content can not be empty!",
+    });
+  }
+
+  let eventParticipant = {
+    event_id: req.body.event_id,
+    participant_id: req.body.user_id,
+    status_id: "ST11",
+    updated_at: getTimeStamp(),
+  };
+
+  EventParticipant.update(eventParticipant, (err, result) => {
+    if (err) return res.status(500).send({ message: err.message });
+    else return res.status(200).send(result);
+  });
+};
+
+exports.declineRequest = (req, res) => {
+  if (!req.body) {
+    return res.status(400).send({
+      message: "Content can not be empty!",
+    });
+  }
+
+  let eventParticipant = {
+    event_id: req.body.event_id,
+    participant_id: req.body.user_id,
+    status_id: "ST15",
+    updated_at: getTimeStamp(),
+  };
+
+  EventParticipant.update(eventParticipant, (err, result) => {
+    if (err) return res.status(500).send({ message: err.message });
+    else return res.status(200).send(result);
   });
 };
 
@@ -251,28 +311,22 @@ exports.displayPic = (req, res) => {
 };
 
 exports.updateInterestEvent = (req, res) => {
-  UserInterest.findExist(
-    { user_id: req.body.user_id, event_id: req.body.event_id },
-    (err, result) => {
-      if (err) return res.status(500).send({ message: err.message });
-      else if (res) {
-        if (result.exist) {
-          req.body.updated_at = getTimeStamp();
-          UserInterest.update(req.body, (err, userInterest) => {
-            if (err) return res.status(500).send({ message: err.message });
-            else if (userInterest) return res.status(200).send(userInterest);
-          });
-        } else if (!result.exist) {
-          req.body.updated_at = getTimeStamp();
-          req.body.created_at = getTimeStamp();
-          UserInterest.create(req.body, (err, userInterest) => {
-            if (err) return res.status(500).send({ message: err.message });
-            else if (userInterest) return res.status(200).send(userInterest);
-          });
-        }
-      }
-    }
-  );
+  if (!req.body) {
+    return res.status(400).send({
+      message: "Content can not be empty!",
+    });
+  }
+
+  let userInterest = new UserInterest("");
+
+  userInterest = req.body;
+  userInterest.created_at = getTimeStamp();
+  userInterest.updated_at = getTimeStamp();
+
+  UserInterest.create(userInterest, (err, result) => {
+    if (err) return res.status(500).send({ message: err.message });
+    else return res.status(200).send(result);
+  });
 };
 
 exports.getEventGenderList = (req, res) => {

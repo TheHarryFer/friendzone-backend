@@ -10,6 +10,12 @@ module.exports = function (app) {
 
   app.post("/api/event/joinEvent", controller.joinEvent);
 
+  app.post("/api/event/cancelRequest", controller.cancelRequest);
+
+  app.post("/api/event/approveRequest", controller.approveRequest);
+
+  app.post("/api/event/declineRequest", controller.declineRequest);
+
   app.get("/api/event/displayPic/:event_id", controller.displayPic);
 
   app.get(

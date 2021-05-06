@@ -36,6 +36,8 @@ require("./app/routes/gender.routes")(app);
 require("./app/routes/event.routes")(app);
 require("./app/routes/category.routes")(app);
 require("./app/routes/chat.routes")(app);
+require("./app/routes/pointTransaction.routes")(app);
+
 
 
 //listening

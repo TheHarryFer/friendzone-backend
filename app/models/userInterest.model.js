@@ -9,36 +9,10 @@ const UserInterest = function (userInterest) {
 };
 
 UserInterest.create = (newUserInterest, result) => {
-  console.log(newUserInterest)
-  sql.query(`INSERT INTO UserInterest SET ?`, newUserInterest, (err, res) => {
-    if (err) {
-      console.log("error : ", err);
-      result(err, null);
-      return;
-    }
-
-    //console.log("Created user interest : ", { ...newUserInterest });
-    result(null, { ...newUserInterest });
-  });
-};
-
-UserInterest.update = (userInterest, result) => {
-  sql.query(`UPDATE UserInterest SET interest = ${userInterest.interest}\
-              WHERE user_id = '${userInterest.user_id}'\
-              AND event_id = '${userInterest.event_id}'`, (err, res) => {
-    if (err) {
-      console.log("error : ", err);
-      result(err, null);
-      return;
-    }
-
-    result(null, { message: "Updated user interest successfully" });
-  });
-};
-
-UserInterest.findExist = (data, result) => {
+  console.log(newUserInterest);
   sql.query(
-    `SELECT * FROM UserInterest WHERE user_id = '${data.user_id}' AND event_id = '${data.event_id}'`,
+    `INSERT INTO UserInterest SET ? ON DUPLICATE KEY UPDATE interest = ${newUserInterest.interest}, updated_at = ${newUserInterest.updated_at}`,
+    newUserInterest,
     (err, res) => {
       if (err) {
         console.log("error : ", err);
@@ -46,15 +20,8 @@ UserInterest.findExist = (data, result) => {
         return;
       }
 
-      if (res.length) {
-        //console.log("Found user interest : " + res);
-        result(null, { exist: true });
-        return;
-      } else {
-        //console.log("Not found user interest");
-        result(null, { exist: false });
-        return;
-      }
+      //console.log("Created user interest : ", { ...newUserInterest });
+      result(null, { ...newUserInterest });
     }
   );
 };

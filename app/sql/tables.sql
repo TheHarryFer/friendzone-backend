@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS Chat(
 -- Create Category Table
 CREATE TABLE IF NOT EXISTS Category(
     category_id             VARCHAR(4)      NOT NULL,
-    category_name           VARCHAR(32)     NOT NULL,
+    category_name           VARCHAR(20)     NOT NULL,
     icon_white              VARCHAR(128)    NULL,
     icon_black              VARCHAR(128)    NULL,
     color_code              VARCHAR(7)      NOT NULL,
@@ -115,9 +115,9 @@ CREATE TABLE IF NOT EXISTS EventParticipant(
     participant_id          VARCHAR(8)      NOT NULL,
     status_id               VARCHAR(4)      NOT NULL,
     created_at              BIGINT          NOT NULL,
-    approved_at             BIGINT          NOT NULL,
+    updated_at              BIGINT          NOT NULL,
     PRIMARY KEY (event_participant_id),
-    UNIQUE      (event_participant_id)
+    UNIQUE      (event_id, participant_id)
     );
 
 -- Create EventReview Table
@@ -171,9 +171,9 @@ CREATE TABLE IF NOT EXISTS ParticipantReview(
 -- Create PointTransaction Table
 CREATE TABLE IF NOT EXISTS PointTransaction(
     point_transaction_id    VARCHAR(8)      NOT NULL,
-    participant_id          VARCHAR(8)      NOT NULL,
-    user_discount_id        VARCHAR(8)      NOT NULL,
-    description             VARCHAR(256)    NOT NULL,
+    participant_id          VARCHAR(8)      NULL,
+    user_discount_id        VARCHAR(8)      NULL,
+    description             VARCHAR(64)     NOT NULL,
     amount                  INT             NOT NULL,
     created_at              BIGINT          NOT NULL,
     updated_at              BIGINT          NOT NULL,
