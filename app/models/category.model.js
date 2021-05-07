@@ -32,7 +32,7 @@ Category.getCount = (result) => {
     }
 
     if (res) {
-      console.log("Count : ", res[0].count);
+      //console.log("Count : ", res[0].count);
       result(null, res[0].count);
       return;
     }

@@ -16,6 +16,10 @@ module.exports = function (app) {
 
   app.post("/api/event/declineRequest", controller.declineRequest);
 
+  app.post("/api/event/addModerator", controller.addModerator);
+
+  app.post("/api/event/removeModerator", controller.removeModerator);
+
   app.get("/api/event/displayPic/:event_id", controller.displayPic);
 
   app.get(

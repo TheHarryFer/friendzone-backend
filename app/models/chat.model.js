@@ -41,7 +41,7 @@ Chat.getCount = (result) => {
     }
 
     if (res) {
-      console.log("Count : ", res[0].count);
+      //console.log("Count : ", res[0].count);
       result(null, res[0].count);
       return;
     }
@@ -62,7 +62,7 @@ Chat.create = (newChat, result) => {
         return;
       }
 
-      console.log("Created chat : ", { ...newChat });
+      //console.log("Created chat : ", { ...newChat });
       result(null, { ...newChat });
     }
   );
@@ -70,13 +70,21 @@ Chat.create = (newChat, result) => {
 
 Chat.getChatList = (user_id, result) => {
   sql.query(
-    `SELECT EV.title,EV.event_id ,(SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id) AS joined, 
+    `SELECT EV.title,EV.event_id ,(SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id AND status_id = 'ST11') AS joined, 
     EV.max_participant,
    (SELECT MSGEP.participant_id 
     FROM Chat MSGCH, EventParticipant MSGEP 
     WHERE EV.event_id = MSGEP.event_id AND MSGCH.sender_id = MSGEP.event_participant_id 
     ORDER BY MSGCH.created_at DESC 
     LIMIT 1) AS participant_id,
+
+    (SELECT US.username 
+      FROM Chat MSGCH, EventParticipant MSGEP, User US
+      WHERE EV.event_id = MSGEP.event_id AND 
+            MSGCH.sender_id = MSGEP.event_participant_id AND 
+            MSGEP.participant_id = US.user_id
+      ORDER BY MSGCH.created_at DESC 
+      LIMIT 1) AS username,
     
    (SELECT MSGCH.message 
     FROM Chat MSGCH, EventParticipant MSGEP 
@@ -108,7 +116,7 @@ Chat.getChatList = (user_id, result) => {
         return;
       }
       if (res.length) {
-        console.log("found event: ", res);
+        //console.log("found event: ", res);
         result(null, res);
         return;
       } else {
@@ -139,7 +147,7 @@ Chat.getChatHead = (event_id, result) => {
         return;
       }
       if (res.length) {
-        console.log("found event: ", res);
+        //console.log("found event: ", res);
         result(null, res[0]);
         return;
       } else {
@@ -167,7 +175,7 @@ Chat.getMessages = (event_id, result) => {
         return;
       }
       if (res.length) {
-        console.log("found event: ", res);
+        //console.log("found event: ", res);
         result(null, res);
         return;
       } else {

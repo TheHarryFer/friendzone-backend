@@ -18,7 +18,7 @@ EventParticipant.getCount = (result) => {
     }
 
     if (res) {
-      console.log("Count : ", res[0].count);
+      //console.log("Count : ", res[0].count);
       result(null, res[0].count);
       return;
     }
@@ -36,7 +36,7 @@ EventParticipant.create = (newEventParticipant, result) => {
         return;
       }
 
-      console.log("Created event participant : ", { ...newEventParticipant });
+      //console.log("Created event participant : ", { ...newEventParticipant });
       result(null, { ...newEventParticipant });
     }
   );
@@ -63,6 +63,7 @@ EventParticipant.getEventParticipantList = (event_id, result) => {
     `SELECT
         US.user_id,
         US.username,
+        EP.event_participant_id,
         EP.status_id,
         IF(
             COALESCE(EM.event_moderator_id, 0) = EM.event_moderator_id,
@@ -90,7 +91,7 @@ EventParticipant.getEventParticipantList = (event_id, result) => {
         return;
       }
 
-      console.log("Found event participant : ", res);
+      //console.log("Found event participant : ", res);
       result(null, res);
     }
   );

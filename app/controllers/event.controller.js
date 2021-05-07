@@ -1,9 +1,11 @@
 const Event = require("../models/event.model.js");
 const ParticipantReview = require("../models/participantReview.model.js");
 const EventParticipant = require("../models/eventParticipant.model.js");
+const EventModerator = require("../models/eventModerator.model.js");
 const EventCategory = require("../models/eventCategory.model.js");
 const EventGender = require("../models/eventGender.model.js");
 const UserInterest = require("../models/userInterest.model.js");
+const Point = require("../models/pointTransaction.model.js");
 const multer = require("multer");
 const fs = require("fs");
 const fsPromises = fs.promises;
@@ -177,8 +179,22 @@ exports.create = (req, res) => {
                     if (createGender(genderList) == "err") {
                       res.status(500).send({ message: err.message });
                     } else {
-                      return res.status(200).send({
-                        event_id: event_id,
+                      count++;
+                      count = count.toString();
+                      var point_transaction_id = "PT" + count.padStart(6, "0");
+                      var pointEvent = new Point.PointEvent("");
+                      pointEvent.point_transaction_id = point_transaction_id;
+                      pointEvent.user_id = req.body.user_id;
+                      pointEvent.event_id = event_id;
+                      pointEvent.description = "Host event";
+                      pointEvent.amount = 300;
+                      pointEvent.created_at = getTimeStamp();
+                      pointEvent.updated_at = getTimeStamp();
+                      Point.PointTransaction.addPointEvent(pointEvent, (err, result) => {
+                        if (err) return res.status(500).send({ message: err.message });
+                        else return res.status(200).send({
+                          event_id: event_id,
+                        });
                       });
                     }
                   }
@@ -260,7 +276,28 @@ exports.approveRequest = (req, res) => {
 
   EventParticipant.update(eventParticipant, (err, result) => {
     if (err) return res.status(500).send({ message: err.message });
-    else return res.status(200).send(result);
+    else {
+      Point.PointTransaction.getCount((err, count) => {
+        if (err) return res.status(500).send({ message: err.message });
+        else {
+          count++;
+          count = count.toString();
+          var point_transaction_id = "PT" + count.padStart(6, "0");
+          var pointEvent = new Point.PointEvent("");
+          pointEvent.point_transaction_id = point_transaction_id;
+          pointEvent.user_id = req.body.user_id;
+          pointEvent.event_id = req.body.event_id;
+          pointEvent.description = "Join event";
+          pointEvent.amount = 200;
+          pointEvent.created_at = getTimeStamp();
+          pointEvent.updated_at = getTimeStamp();
+          Point.PointTransaction.addPointEvent(pointEvent, (err, result) => {
+            if (err) return res.status(500).send({ message: err.message });
+          });
+        }
+      });
+      return res.status(200).send(result);
+    }
   });
 };
 
@@ -279,6 +316,56 @@ exports.declineRequest = (req, res) => {
   };
 
   EventParticipant.update(eventParticipant, (err, result) => {
+    if (err) return res.status(500).send({ message: err.message });
+    else return res.status(200).send(result);
+  });
+};
+
+exports.addModerator = (req, res) => {
+  if (!req.body) {
+    return res.status(400).send({
+      message: "Content can not be empty!",
+    });
+  }
+
+  EventModerator.getCount((err, count) => {
+    if (err) return res.status(500).send({ message: err.message });
+    else {
+      count++;
+      count = count.toString();
+      var event_moderator_id = "EM" + count.padStart(6, "0");
+      var eventModerator = new EventModerator("");
+
+      eventModerator.event_moderator_id = event_moderator_id;
+      eventModerator.moderator_id = req.body.participant_id;
+      eventModerator.status_id = "ST03";
+      eventModerator.created_at = getTimeStamp();
+      eventModerator.updated_at = getTimeStamp();
+
+      EventModerator.create(eventModerator, (err, result) => {
+        if (err) return res.status(500).send({ message: err.message });
+        else {
+          return res.status(200).send(result);
+        }
+      });
+    }
+  });
+};
+
+exports.removeModerator = (req, res) => {
+  if (!req.body) {
+    return res.status(400).send({
+      message: "Content can not be empty!",
+    });
+  }
+
+  let eventModerator = {
+    moderator_id: req.body.participant_id,
+    status_id: "ST12",
+    updated_at: getTimeStamp(),
+  };
+
+  EventModerator.update(eventModerator, (err, result) => {
     if (err) return res.status(500).send({ message: err.message });
     else return res.status(200).send(result);
   });

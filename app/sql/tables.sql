@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS EventInvited(
     created_at              BIGINT          NOT NULL,
     updated_at              BIGINT          NOT NULL,
     PRIMARY KEY (event_invited_id),
-    UNIQUE      (event_invited_id)
+    UNIQUE      (inviter_id, invitee_id)
     );
 
 -- Create EventModerator Table
@@ -105,7 +105,7 @@ CREATE TABLE IF NOT EXISTS EventModerator(
     created_at              BIGINT          NOT NULL,
     updated_at              BIGINT          NOT NULL,
     PRIMARY KEY (event_moderator_id),
-    UNIQUE      (event_moderator_id)
+    UNIQUE      (moderator_id)
     );
 
 -- Create EventParticipant Table
@@ -130,7 +130,7 @@ CREATE TABLE IF NOT EXISTS EventReview(
     created_at              BIGINT          NOT NULL,
     updated_at              BIGINT          NOT NULL,
     PRIMARY KEY (event_review_id),
-    UNIQUE      (event_review_id)
+    UNIQUE      (reviewer_id)
     );
 
 -- Create Follower Table
@@ -165,7 +165,7 @@ CREATE TABLE IF NOT EXISTS ParticipantReview(
     created_at              BIGINT          NOT NULL,
     updated_at              BIGINT          NOT NULL,
     PRIMARY KEY (participant_review_id),
-    UNIQUE      (participant_review_id)
+    UNIQUE      (reviewer_id, participant_id)
     );
 
 -- Create PointTransaction Table

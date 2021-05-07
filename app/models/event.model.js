@@ -27,7 +27,7 @@ Event.getCount = (result) => {
     }
 
     if (res) {
-      console.log("Count : ", res[0].count);
+      //console.log("Count : ", res[0].count);
       result(null, res[0].count);
       return;
     }
@@ -42,7 +42,7 @@ Event.create = (newEvent, result) => {
       return;
     }
 
-    console.log("Created event : ", { ...newEvent });
+    //console.log("Created event : ", { ...newEvent });
     result(null, { ...newEvent });
   });
 };
@@ -103,7 +103,21 @@ Event.getEventPicturePath = (event_id, result) => {
 
 Event.getHostedEvent = (user_id, result) => {
   sql.query(
-    `SELECT EV.* , US.username,US.user_id, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id AND status_id = 'ST11') AS joined, COALESCE(UI.interest, 0) AS interest\
+    `SELECT EV.* , US.username, US.user_id, EP.status_id AS participant_status, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id AND status_id = 'ST11') AS joined, COALESCE(UI.interest, 0) AS interest,\
+    COALESCE((SELECT
+      IF(status_id = 'ST03', 1, 0)
+    FROM
+      EventModerator
+    WHERE
+      moderator_id = (
+          SELECT
+              EP.event_participant_id
+          FROM
+              EventParticipant EP
+          WHERE
+              EP.event_id = EV.event_id
+              AND EP.participant_id = '${user_id}'
+      )), 0) AS isMod
     FROM EventParticipant EP\
     LEFT JOIN Event EV\ 
          ON EP.event_participant_id = EV.host_id\
@@ -124,7 +138,7 @@ Event.getHostedEvent = (user_id, result) => {
         return;
       }
       if (res.length) {
-        console.log("found event: ", res);
+        //console.log("found event: ", res);
         result(null, res);
         return;
       } else {
@@ -138,7 +152,21 @@ Event.getHostedEvent = (user_id, result) => {
 
 Event.getJoinedEvent = (user_id, result) => {
   sql.query(
-    `SELECT EV.* , US.username,US.user_id, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id AND status_id = 'ST11') AS joined, COALESCE(UI.interest, 0) AS interest\ 
+    `SELECT EV.* , US.username, US.user_id, EP.status_id AS participant_status, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id AND status_id = 'ST11') AS joined, COALESCE(UI.interest, 0) AS interest,\ 
+    COALESCE((SELECT
+      IF(status_id = 'ST03', 1, 0)
+    FROM
+      EventModerator
+    WHERE
+      moderator_id = (
+          SELECT
+              EP.event_participant_id
+          FROM
+              EventParticipant EP
+          WHERE
+              EP.event_id = EV.event_id
+              AND EP.participant_id = '${user_id}'
+      )), 0) AS isMod
     FROM EventParticipant EP\
     LEFT JOIN Event EV\
          ON EP.event_id = EV.event_id\
@@ -161,7 +189,7 @@ Event.getJoinedEvent = (user_id, result) => {
         return;
       }
       if (res.length) {
-        console.log("found event: ", res);
+        //console.log("found event: ", res);
         result(null, res);
         return;
       } else {
@@ -175,7 +203,21 @@ Event.getJoinedEvent = (user_id, result) => {
 
 Event.getRequestedEvent = (user_id, result) => {
   sql.query(
-    `SELECT EV.* , US.username,US.user_id, IF(EP.status_id = 'ST15', 1 ,0) AS rejected , (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id AND status_id = 'ST11') AS joined,  COALESCE(UI.interest, 0) AS interest\ 
+    `SELECT EV.* , US.username, US.user_id, EP.status_id AS participant_status, IF(EP.status_id = 'ST15', 1 ,0) AS rejected , (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id AND status_id = 'ST11') AS joined,  COALESCE(UI.interest, 0) AS interest,\ 
+    COALESCE((SELECT
+      IF(status_id = 'ST03', 1, 0)
+    FROM
+      EventModerator
+    WHERE
+      moderator_id = (
+          SELECT
+              EP.event_participant_id
+          FROM
+              EventParticipant EP
+          WHERE
+              EP.event_id = EV.event_id
+              AND EP.participant_id = '${user_id}'
+      )), 0) AS isMod
     FROM EventParticipant EP\
     LEFT JOIN Event EV\ 
          ON EP.event_id = EV.event_id\
@@ -198,7 +240,7 @@ Event.getRequestedEvent = (user_id, result) => {
         return;
       }
       if (res.length) {
-        console.log("found event: ", res);
+        //console.log("found event: ", res);
         result(null, res);
         return;
       } else {
@@ -212,7 +254,21 @@ Event.getRequestedEvent = (user_id, result) => {
 
 Event.getInterestedEvent = (user_id, result) => {
   sql.query(
-    `SELECT EV.*, HOSTUSER.username,HOSTUSER.user_id,  (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id AND status_id = 'ST11') AS joined,  COALESCE(UI.interest, 0) AS interest\
+    `SELECT EV.*, HOSTUSER.username, HOSTUSER.user_id, (SELECT status_id FROM EventParticipant WHERE event_id = EV.event_id AND participant_id = '${user_id}') AS participant_status, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id AND status_id = 'ST11') AS joined,  COALESCE(UI.interest, 0) AS interest,\
+    COALESCE((SELECT
+      IF(status_id = 'ST03', 1, 0)
+    FROM
+      EventModerator
+    WHERE
+      moderator_id = (
+          SELECT
+              EP.event_participant_id
+          FROM
+              EventParticipant EP
+          WHERE
+              EP.event_id = EV.event_id
+              AND EP.participant_id = '${user_id}'
+      )), 0) AS isMod
     FROM User US\ 
     LEFT JOIN UserInterest UI\ 
          ON US.user_id = UI.user_id\
@@ -226,7 +282,7 @@ Event.getInterestedEvent = (user_id, result) => {
   WHERE  US.user_id = '${user_id}' AND\  
        COALESCE(UI.interest, 0) = 1\
        
-  ORDER BY EV.start_at \
+  ORDER BY EV.start_at\
   `,
     (err, res) => {
       if (err) {
@@ -235,7 +291,7 @@ Event.getInterestedEvent = (user_id, result) => {
         return;
       }
       if (res.length) {
-        console.log("found event: ", res);
+        //console.log("found event: ", res);
         result(null, res);
         return;
       } else {
@@ -266,8 +322,8 @@ Event.getUserCateogryInterestEvent = (user_id, result) => {
                         FROM EventParticipant EP 
                         WHERE EP.participant_id = '${user_id}') OR
                 EV.event_id IN (SELECT EP.event_id 
-                                FROM EventParticipant EP 
-                                WHERE EP.participant_id = '${user_id}' AND EP.status_id = 'ST12')) AND
+                        FROM EventParticipant EP 
+                        WHERE EP.participant_id = '${user_id}' AND EP.status_id = 'ST12')) AND
                                 
              UC.category_id = EC.category_id AND 
              EC.status = 1 AND UC.interest = 1 AND 
@@ -283,7 +339,7 @@ Event.getUserCateogryInterestEvent = (user_id, result) => {
         return;
       }
       if (res.length) {
-        console.log("found event: ", res);
+        //console.log("found event: ", res);
         result(null, res);
         return;
       } else {
@@ -306,11 +362,17 @@ Event.getEventByCategory = (user_id, category_id, result) => {
          ON US.user_id = EP.participant_id
      LEFT JOIN EventCategory EC 
          ON EV.event_id = EC.event_id
-     WHERE NOT EP.participant_id = '${user_id}' AND NOT 
-              EV.event_id IN (SELECT EP.event_id FROM EventParticipant EP WHERE EP.participant_id = '${user_id}') AND
-              EV.host_id = EP.event_participant_id AND 
-              EC.category_id = '${category_id}' AND 
-              EC.status = 1
+     WHERE NOT EP.participant_id = '${user_id}' AND  
+               (NOT EV.event_id IN (SELECT EP.event_id 
+                                FROM EventParticipant EP 
+                                WHERE EP.participant_id = '${user_id}') OR 
+                EV.event_id IN (SELECT EP.event_id 
+                                FROM EventParticipant EP 
+                                WHERE EP.participant_id = '${user_id}' AND EP.status_id = 'ST12')) AND
+                           EV.host_id = EP.event_participant_id AND 
+                           EC.category_id = '${category_id}' AND 
+                           EC.status = 1 AND 
+                           EV.end_at > ROUND(UNIX_TIMESTAMP(CURTIME(4)) * 1000)
      GROUP BY EP.event_id , EV.host_id
      ORDER BY RAND()
      LIMIT 20
@@ -322,7 +384,7 @@ Event.getEventByCategory = (user_id, category_id, result) => {
         return;
       }
       if (res.length) {
-        console.log("found event: ", res);
+        //console.log("found event: ", res);
         result(null, res);
         return;
       } else {
