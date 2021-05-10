@@ -1,5 +1,6 @@
 const Event = require("../models/event.model.js");
 const ParticipantReview = require("../models/participantReview.model.js");
+const EventReview = require("../models/eventReview.model.js");
 const EventParticipant = require("../models/eventParticipant.model.js");
 const EventModerator = require("../models/eventModerator.model.js");
 const EventCategory = require("../models/eventCategory.model.js");
@@ -371,6 +372,68 @@ exports.removeModerator = (req, res) => {
   });
 };
 
+exports.createParticipantReview = (req, res) => {
+  if (!req.body) {
+    return res.status(400).send({
+      message: "Content can not be empty!",
+    });
+  }
+
+  ParticipantReview.getCount((err, count) => {
+    if (err) return res.status(500).send({ message: err.message });
+    else {
+      count++;
+      count = count.toString();
+      var participant_review_id = "PR" + count.padStart(6, "0");
+      var participantReview = new ParticipantReview("");
+
+      participantReview = req.body;
+      participantReview.participant_review_id = participant_review_id;
+      participantReview.status_id = "ST02";
+      participantReview.created_at = getTimeStamp();
+      participantReview.updated_at = getTimeStamp();
+
+      ParticipantReview.create(participantReview, (err, result) => {
+        if (err) return res.status(500).send({ message: err.message });
+        else {
+          return res.status(200).send(result);
+        }
+      });
+    }
+  });
+};
+
+exports.createEventReview = (req, res) => {
+  if (!req.body) {
+    return res.status(400).send({
+      message: "Content can not be empty!",
+    });
+  }
+
+  EventReview.getCount((err, count) => {
+    if (err) return res.status(500).send({ message: err.message });
+    else {
+      count++;
+      count = count.toString();
+      var event_review_id = "ER" + count.padStart(6, "0");
+      var eventReview = new EventReview("");
+
+      eventReview = req.body;
+      eventReview.event_review_id = event_review_id;
+      eventReview.status_id = "ST02";
+      eventReview.created_at = getTimeStamp();
+      eventReview.updated_at = getTimeStamp();
+
+      EventReview.create(eventReview, (err, result) => {
+        if (err) return res.status(500).send({ message: err.message });
+        else {
+          return res.status(200).send(result);
+        }
+      });
+    }
+  });
+};
+
 exports.displayPic = (req, res) => {
   Event.getEventPicturePath(req.params.event_id, (err, event) => {
     if (err) return res.status(500).send({ message: err.message });
@@ -498,3 +561,36 @@ exports.getEventByCategory = (req, res) => {
     }
   );
 };
+
+exports.getApproverList = (req, res) => {
+  Event.getApproverList(
+    (err, result) => {
+      if (err) return res.status(500).send({ message: err.message });
+      else return res.status(200).send(result);
+    }
+  );
+};
+
+
+exports.getEventCount = (req, res) => {
+  Event.getEventCount(
+    (err, result) => {
+      if (err) return res.status(500).send({ message: err.message });
+      else return res.status(200).send(result);
+    }
+  );
+};
+
+
+exports.approving = (req, res) => {
+  if(req.body.approve == true) 
+    approve = "ST03"
+  else 
+    approve = "ST15"
+  Event.approving(req.body.event_id, approve,(err, result) => {
+      if (err) return res.status(500).send({ message: err.message });
+      else return res.status(200).send({message: res.message});
+    }
+  );
+};
+

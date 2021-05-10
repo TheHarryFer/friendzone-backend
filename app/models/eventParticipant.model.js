@@ -70,7 +70,22 @@ EventParticipant.getEventParticipantList = (event_id, result) => {
             IF(EM.status_id = 'ST03', EM.event_moderator_id, 0),
             0
         ) AS moderator,
-        IF(EV.host_id = EP.event_participant_id, 1, 0) AS host
+        IF(EV.host_id = EP.event_participant_id, 1, 0) AS host,
+        COALESCE((
+          SELECT
+              AVG(rating)
+          FROM
+              ParticipantReview
+          WHERE
+              participant_id IN (
+                  SELECT
+                      event_participant_id
+                  FROM
+                      EventParticipant
+                  WHERE
+                      participant_id = US.user_id
+              )
+        ), 0) AS rating
     FROM
         EventParticipant EP
         LEFT JOIN User US ON EP.participant_id = US.user_id

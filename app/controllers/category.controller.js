@@ -162,3 +162,10 @@ exports.displayCategoryIcon = (req, res) => {
     }
   });
 };
+
+exports.getCategoryFromUserID = (req, res) => {
+  Category.getCategoryFromUserID(req.params.user_id, (err, category) => {
+    if (err) return res.status(500).send({ message: err.message });
+    if (category) return res.status(200).send(category);
+  });
+};

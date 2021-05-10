@@ -20,6 +20,10 @@ module.exports = function (app) {
 
   app.post("/api/event/removeModerator", controller.removeModerator);
 
+  app.post("/api/event/createParticipantReview", controller.createParticipantReview);
+
+  app.post("/api/event/createEventReview", controller.createEventReview);
+
   app.get("/api/event/displayPic/:event_id", controller.displayPic);
 
   app.get(
@@ -65,4 +69,10 @@ module.exports = function (app) {
     "/api/event/getEventByCategory/:user_id/:category_id",
     controller.getEventByCategory
   );
+
+  app.get("/api/event/getApproverList",controller.getApproverList);
+
+  app.get("/api/event/getEventCount", controller.getEventCount);
+
+  app.post("/api/event/approving", controller.approving)
 };

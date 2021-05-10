@@ -1,12 +1,14 @@
 const sql = require("./db.connection.js");
 
 const ParticipantReview = function (participantReview) {
-  this.event_participant_id = participantReview.event_participant_id;
-  this.event_id = participantReview.event_id;
+  this.participant_review_id = participantReview.participant_review_id;
+  this.reviewer_id = participantReview.reviewer_id;
   this.participant_id = participantReview.participant_id;
+  this.rating = participantReview.rating;
+  this.comment = participantReview.comment;
   this.status_id = participantReview.status_id;
   this.created_at = participantReview.created_at;
-  this.approved_at = participantReview.approved_at;
+  this.updated_at = participantReview.updated_at;
 };
 
 ParticipantReview.getCount = (result) => {
@@ -27,7 +29,19 @@ ParticipantReview.getCount = (result) => {
 
 ParticipantReview.create = (newParticipantReview, result) => {
   sql.query(
-    `INSERT INTO ParticipantReview SET ?`,
+    `INSERT INTO ParticipantReview VALUES (
+      '${newParticipantReview.participant_review_id}',
+      (SELECT event_participant_id 
+        FROM EventParticipant 
+        WHERE participant_id = '${newParticipantReview.user_id}' 
+        AND event_id = '${newParticipantReview.event_id}'),
+      '${newParticipantReview.participant_id}',
+      ${newParticipantReview.rating},
+      NULLIF('${newParticipantReview.comment}', 'undefined'),
+      '${newParticipantReview.status_id}',
+      '${newParticipantReview.created_at}',
+      '${newParticipantReview.updated_at}'    
+    );`,
     newParticipantReview,
     (err, res) => {
       if (err) {
@@ -36,7 +50,7 @@ ParticipantReview.create = (newParticipantReview, result) => {
         return;
       }
 
-      console.log("Createt participant review : ", { ...newParticipantReview });
+      console.log("Create participant review : ", { ...newParticipantReview });
       result(null, { ...newParticipantReview });
     }
   );

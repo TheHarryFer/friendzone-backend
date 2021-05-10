@@ -8,4 +8,7 @@ module.exports = function (app) {
   app.get("/api/category/getCategoryList", controller.getCategoryList);
 
   app.get("/api/category/displayIcon", controller.displayCategoryIcon);
+
+  app.get("/api/category/getCategoryFromUserID/:user_id", controller.getCategoryFromUserID);
+
 };

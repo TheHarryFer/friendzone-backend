@@ -104,6 +104,8 @@ Event.getEventPicturePath = (event_id, result) => {
 Event.getHostedEvent = (user_id, result) => {
   sql.query(
     `SELECT EV.* , US.username, US.user_id, EP.status_id AS participant_status, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id AND status_id = 'ST11') AS joined, COALESCE(UI.interest, 0) AS interest,\
+     COALESCE((SELECT AVG(rating) FROM EventReview
+      WHERE reviewer_id IN (SELECT event_participant_id FROM EventParticipant WHERE event_id = EV.event_id)), 0) AS rating,
     COALESCE((SELECT
       IF(status_id = 'ST03', 1, 0)
     FROM
@@ -153,6 +155,8 @@ Event.getHostedEvent = (user_id, result) => {
 Event.getJoinedEvent = (user_id, result) => {
   sql.query(
     `SELECT EV.* , US.username, US.user_id, EP.status_id AS participant_status, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id AND status_id = 'ST11') AS joined, COALESCE(UI.interest, 0) AS interest,\ 
+    COALESCE((SELECT AVG(rating) FROM EventReview
+    WHERE reviewer_id IN (SELECT event_participant_id FROM EventParticipant WHERE event_id = EV.event_id)), 0) AS rating,
     COALESCE((SELECT
       IF(status_id = 'ST03', 1, 0)
     FROM
@@ -204,6 +208,8 @@ Event.getJoinedEvent = (user_id, result) => {
 Event.getRequestedEvent = (user_id, result) => {
   sql.query(
     `SELECT EV.* , US.username, US.user_id, EP.status_id AS participant_status, IF(EP.status_id = 'ST15', 1 ,0) AS rejected , (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id AND status_id = 'ST11') AS joined,  COALESCE(UI.interest, 0) AS interest,\ 
+    COALESCE((SELECT AVG(rating) FROM EventReview
+    WHERE reviewer_id IN (SELECT event_participant_id FROM EventParticipant WHERE event_id = EV.event_id)), 0) AS rating,
     COALESCE((SELECT
       IF(status_id = 'ST03', 1, 0)
     FROM
@@ -255,6 +261,8 @@ Event.getRequestedEvent = (user_id, result) => {
 Event.getInterestedEvent = (user_id, result) => {
   sql.query(
     `SELECT EV.*, HOSTUSER.username, HOSTUSER.user_id, (SELECT status_id FROM EventParticipant WHERE event_id = EV.event_id AND participant_id = '${user_id}') AS participant_status, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id AND status_id = 'ST11') AS joined,  COALESCE(UI.interest, 0) AS interest,\
+    COALESCE((SELECT AVG(rating) FROM EventReview
+    WHERE reviewer_id IN (SELECT event_participant_id FROM EventParticipant WHERE event_id = EV.event_id)), 0) AS rating,
     COALESCE((SELECT
       IF(status_id = 'ST03', 1, 0)
     FROM
@@ -394,6 +402,92 @@ Event.getEventByCategory = (user_id, category_id, result) => {
       }
     }
   );
+
 };
+
+  Event.getApproverList = (result) => {
+    sql.query(
+      `SELECT EV.event_id, EV.title, EV.location, EV.start_at, US.username, EV.status_id, EV.end_at
+      FROM Event EV, User US, EventParticipant EP
+      WHERE EV.host_id = EP.event_participant_id AND 
+          EP.participant_id = US.user_id 
+      ORDER BY EV.created_at 
+    `,
+      (err, res) => {
+        if (err) {
+          console.log("error: ", err);
+          result(err, null);
+          return;
+        }
+        if (res.length) {
+          result(null, res);
+          return;
+        } else {
+          result(null, { message: "not_found" });
+          return;
+        }
+      }
+    );
+};
+
+Event.getEventCount = (result) => {
+  sql.query(
+    `(SELECT COALESCE(status_id, "ST03") AS status_id, count(*) AS count 
+     FROM Event 
+     WHERE status_id = "ST03") 
+   
+     UNION 
+   
+     (SELECT COALESCE(status_id, "ST13") AS status_id, count(*) AS count 
+     FROM Event 
+     WHERE status_id = "ST13") 
+     
+     UNION 
+    
+     (SELECT COALESCE(status_id, "ST15") AS status_id, count(*) AS count 
+     FROM Event 
+     WHERE status_id = "ST15") 
+  `,
+    (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(err, null);
+        return;
+      }
+      if (res.length) {
+        result(null, res);
+        return;
+      } else {
+        result(null, { message: "not_found" });
+        return;
+      }
+    }
+  );
+};
+
+
+Event.approving = (event_id, status_id, result) => {
+  sql.query(
+    `UPDATE Event SET status_id = '${status_id}' WHERE event_id = '${event_id}'`,
+    (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(err, null);
+        return;
+      }
+      if (res.length) {
+        result(null, res);
+        return;
+      } else {
+        result(null, { message: "not_found" });
+        return;
+      }
+    }
+  );
+};
+
+
+
+
 
 module.exports = Event;
