@@ -171,20 +171,19 @@ Event.getJoinedEvent = (user_id, result) => {
               EP.event_id = EV.event_id
               AND EP.participant_id = '${user_id}'
       )), 0) AS isMod
-    FROM EventParticipant EP\
-    LEFT JOIN Event EV\
-         ON EP.event_id = EV.event_id\
-    LEFT JOIN EventParticipant HOST\
-         ON EV.host_id = HOST.event_participant_id\
-    LEFT JOIN UserInterest UI\ 
-         ON EP.participant_id = UI.user_id AND EV.event_id = UI.event_id\
-    LEFT JOIN User US\
-         ON US.user_id = HOST.participant_id\ 		
-         
-  WHERE  EP.participant_id = '${user_id}' AND\ 
-       EP.status_id = 'ST11' AND NOT\ 
-       HOST.participant_id = '${user_id}'\
-       ORDER BY EV.start_at\
+    FROM EventParticipant EP
+    LEFT JOIN Event EV
+         ON EP.event_id = EV.event_id
+    LEFT JOIN EventParticipant HOST
+         ON EV.host_id = HOST.event_participant_id
+    LEFT JOIN UserInterest UI
+         ON EP.participant_id = UI.user_id AND EV.event_id = UI.event_id
+    LEFT JOIN User US
+         ON US.user_id = HOST.participant_id
+  WHERE  EP.participant_id = '${user_id}' AND
+       EP.status_id = 'ST11' AND NOT
+       HOST.participant_id = '${user_id}'
+  ORDER BY EV.start_at
   `,
     (err, res) => {
       if (err) {
@@ -335,7 +334,8 @@ Event.getUserCateogryInterestEvent = (user_id, result) => {
                                 
              UC.category_id = EC.category_id AND 
              EC.status = 1 AND UC.interest = 1 AND 
-             EV.end_at > ROUND(UNIX_TIMESTAMP(CURTIME(4)) * 1000)
+             EV.end_at > ROUND(UNIX_TIMESTAMP(CURTIME(4)) * 1000) AND 
+             EV.status_id = 'ST03'
     GROUP BY EP.event_id , EV.host_id
     ORDER BY RAND()
     LIMIT 20
@@ -380,7 +380,8 @@ Event.getEventByCategory = (user_id, category_id, result) => {
                            EV.host_id = EP.event_participant_id AND 
                            EC.category_id = '${category_id}' AND 
                            EC.status = 1 AND 
-                           EV.end_at > ROUND(UNIX_TIMESTAMP(CURTIME(4)) * 1000)
+                           EV.end_at > ROUND(UNIX_TIMESTAMP(CURTIME(4)) * 1000) AND
+                           EV.status_id = 'ST03'
      GROUP BY EP.event_id , EV.host_id
      ORDER BY RAND()
      LIMIT 20
@@ -402,32 +403,31 @@ Event.getEventByCategory = (user_id, category_id, result) => {
       }
     }
   );
-
 };
 
-  Event.getApproverList = (result) => {
-    sql.query(
-      `SELECT EV.event_id, EV.title, EV.location, EV.start_at, US.username, EV.status_id, EV.end_at
+Event.getApproverList = (result) => {
+  sql.query(
+    `SELECT EV.*, US.username
       FROM Event EV, User US, EventParticipant EP
       WHERE EV.host_id = EP.event_participant_id AND 
           EP.participant_id = US.user_id 
       ORDER BY EV.created_at 
     `,
-      (err, res) => {
-        if (err) {
-          console.log("error: ", err);
-          result(err, null);
-          return;
-        }
-        if (res.length) {
-          result(null, res);
-          return;
-        } else {
-          result(null, { message: "not_found" });
-          return;
-        }
+    (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(err, null);
+        return;
       }
-    );
+      if (res.length) {
+        result(null, res);
+        return;
+      } else {
+        result(null, { message: "not_found" });
+        return;
+      }
+    }
+  );
 };
 
 Event.getEventCount = (result) => {
@@ -465,7 +465,6 @@ Event.getEventCount = (result) => {
   );
 };
 
-
 Event.approving = (event_id, status_id, result) => {
   sql.query(
     `UPDATE Event SET status_id = '${status_id}' WHERE event_id = '${event_id}'`,
@@ -485,9 +484,5 @@ Event.approving = (event_id, status_id, result) => {
     }
   );
 };
-
-
-
-
 
 module.exports = Event;

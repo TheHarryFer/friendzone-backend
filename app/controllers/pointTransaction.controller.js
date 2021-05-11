@@ -11,3 +11,9 @@ exports.getPoint = (req, res) => {
   });
 };
 
+exports.getPointLog = (req, res) => {
+  Point.PointTransaction.getPointLog(req.params.user_id, (err, point) => {
+    if (err) return res.status(500).send({ message: err.message });
+    if (point) return res.status(200).send(point);
+  });
+};

@@ -93,4 +93,38 @@ PointTransaction.addPointEvent = (newPointTransaction, result) => {
   );
 };
 
+PointTransaction.getPointLog = (user_id, result) => {
+  sql.query(
+    ` SELECT amount1.point AS point, amount1.title, amount1.description, amount1.created_at
+    FROM ((SELECT COALESCE(amount,0) AS point, EV.title AS title, PT.description, PT.created_at
+         FROM PointTransaction PT
+         INNER JOIN EventParticipant EP 
+                 ON EP.participant_id = '${user_id}' AND 
+                    EP.event_participant_id = PT.participant_id
+         INNER JOIN Event EV 
+                ON EP.event_id = EV.event_id)
+      UNION ALL
+       (SELECT COALESCE(amount,0) AS point, DC.name AS title, PT.description, PT.created_at
+        FROM PointTransaction PT
+        INNER JOIN UserDiscount UD 
+                ON UD.user_id = '${user_id}'
+        INNER JOIN Discount DC 
+               ON DC.discount_id = UD.discount_id)
+       ) amount1`,
+    (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(err, null);
+        return;
+      }
+
+      if (res.length) {
+        result(null, res);
+        return;
+      }
+      return;
+    }
+  );
+};
+
 module.exports = { PointTransaction, PointEvent, PointDiscount };

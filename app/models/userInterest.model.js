@@ -9,7 +9,6 @@ const UserInterest = function (userInterest) {
 };
 
 UserInterest.create = (newUserInterest, result) => {
-  console.log(newUserInterest);
   sql.query(
     `INSERT INTO UserInterest SET ? ON DUPLICATE KEY UPDATE interest = ${newUserInterest.interest}, updated_at = ${newUserInterest.updated_at}`,
     newUserInterest,

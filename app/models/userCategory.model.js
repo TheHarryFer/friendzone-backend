@@ -9,7 +9,7 @@ const UserCategory = function (userCategory) {
 };
 
 UserCategory.create = (newUserCategory, result) => {
-  sql.query(`INSERT INTO UserCategory VALUES ?`, [newUserCategory], (err, res) => {
+  sql.query(`INSERT INTO UserCategory VALUES ? ON DUPLICATE KEY UPDATE interest = ${newUserCategory.interest}, updated_at = ${newUserCategory.updated_at}`, newUserCategory, (err, res) => {
     if (err) {
       console.log("error : ", err);
       result(err, null);
