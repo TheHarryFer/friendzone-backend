@@ -118,11 +118,11 @@ exports.updateUserCategory = (req, res) => {
   }
   
   var categoryList = [];
-  req.body.category_id.forEach(category_id => {
+  req.body.categoryInterest.forEach(category => {
     categoryList.push([
       user_id = req.body.user_id,
-      category_id = category_id,
-      interest = true,
+      category_id = category.category_id,
+      interest = category.interest,
       created_at = getTimeStamp(),
       updated_at = getTimeStamp()
     ])

@@ -30,7 +30,7 @@ function createEvent(eventParticipant, event, user_id) {
       Event.updateHost(
         {
           event_id: event.event_id,
-          host_id: eventParticipant.event_participant_id,
+          host_id: eventParticipant.event_participant_id
         },
         (err, result) => {
           if (err) return "err";
@@ -47,7 +47,7 @@ function arrayCategory(event_id, category_id) {
     (category_id = category_id),
     (status = true),
     (created_at = getTimeStamp()),
-    (updated_at = getTimeStamp()),
+    (updated_at = getTimeStamp())
   ];
   return eventCategory;
 }
@@ -65,7 +65,7 @@ function arrayGender(event_id, gender_id) {
     (gender_id = gender_id),
     (status = true),
     (created_at = getTimeStamp()),
-    (updated_at = getTimeStamp()),
+    (updated_at = getTimeStamp())
   ];
   return eventGender;
 }
@@ -107,7 +107,7 @@ const storage = multer.diskStorage({
           req.query.event_id +
           "-" +
           file.originalname,
-        updated_at: getTimeStamp(),
+        updated_at: getTimeStamp()
       },
       (err, data) => {
         if (err) return res.status(500).send({ message: err.message });
@@ -118,7 +118,7 @@ const storage = multer.diskStorage({
   },
   filename: function (req, file, callback) {
     callback(null, req.query.event_id + "-" + file.originalname);
-  },
+  }
 });
 
 const upload = multer({ storage: storage }).single("uploadedImages");
@@ -126,7 +126,7 @@ const upload = multer({ storage: storage }).single("uploadedImages");
 exports.create = (req, res) => {
   if (!req.body) {
     return res.status(400).send({
-      message: "Content can not be empty!",
+      message: "Content can not be empty!"
     });
   }
   Event.getCount((err, count) => {
@@ -180,22 +180,8 @@ exports.create = (req, res) => {
                     if (createGender(genderList) == "err") {
                       res.status(500).send({ message: err.message });
                     } else {
-                      count++;
-                      count = count.toString();
-                      var point_transaction_id = "PT" + count.padStart(6, "0");
-                      var pointEvent = new Point.PointEvent("");
-                      pointEvent.point_transaction_id = point_transaction_id;
-                      pointEvent.user_id = req.body.user_id;
-                      pointEvent.event_id = event_id;
-                      pointEvent.description = "Host event";
-                      pointEvent.amount = 300;
-                      pointEvent.created_at = getTimeStamp();
-                      pointEvent.updated_at = getTimeStamp();
-                      Point.PointTransaction.addPointEvent(pointEvent, (err, result) => {
-                        if (err) return res.status(500).send({ message: err.message });
-                        else return res.status(200).send({
-                          event_id: event_id,
-                        });
+                      return res.status(200).send({
+                        event_id: event_id
                       });
                     }
                   }
@@ -212,7 +198,7 @@ exports.create = (req, res) => {
 exports.joinEvent = (req, res) => {
   if (!req.body) {
     return res.status(400).send({
-      message: "Content can not be empty!",
+      message: "Content can not be empty!"
     });
   }
 
@@ -244,7 +230,7 @@ exports.joinEvent = (req, res) => {
 exports.cancelRequest = (req, res) => {
   if (!req.body) {
     return res.status(400).send({
-      message: "Content can not be empty!",
+      message: "Content can not be empty!"
     });
   }
 
@@ -252,7 +238,7 @@ exports.cancelRequest = (req, res) => {
     event_id: req.body.event_id,
     participant_id: req.body.user_id,
     status_id: "ST12",
-    updated_at: getTimeStamp(),
+    updated_at: getTimeStamp()
   };
 
   EventParticipant.update(eventParticipant, (err, result) => {
@@ -264,7 +250,7 @@ exports.cancelRequest = (req, res) => {
 exports.approveRequest = (req, res) => {
   if (!req.body) {
     return res.status(400).send({
-      message: "Content can not be empty!",
+      message: "Content can not be empty!"
     });
   }
 
@@ -272,7 +258,7 @@ exports.approveRequest = (req, res) => {
     event_id: req.body.event_id,
     participant_id: req.body.user_id,
     status_id: "ST11",
-    updated_at: getTimeStamp(),
+    updated_at: getTimeStamp()
   };
 
   EventParticipant.update(eventParticipant, (err, result) => {
@@ -292,7 +278,7 @@ exports.approveRequest = (req, res) => {
           pointEvent.amount = 200;
           pointEvent.created_at = getTimeStamp();
           pointEvent.updated_at = getTimeStamp();
-          Point.PointTransaction.addPointEvent(pointEvent, (err, result) => {
+          Point.PointTransaction.addPointJoin(pointEvent, (err, result) => {
             if (err) return res.status(500).send({ message: err.message });
           });
         }
@@ -305,7 +291,7 @@ exports.approveRequest = (req, res) => {
 exports.declineRequest = (req, res) => {
   if (!req.body) {
     return res.status(400).send({
-      message: "Content can not be empty!",
+      message: "Content can not be empty!"
     });
   }
 
@@ -313,7 +299,7 @@ exports.declineRequest = (req, res) => {
     event_id: req.body.event_id,
     participant_id: req.body.user_id,
     status_id: "ST15",
-    updated_at: getTimeStamp(),
+    updated_at: getTimeStamp()
   };
 
   EventParticipant.update(eventParticipant, (err, result) => {
@@ -325,7 +311,7 @@ exports.declineRequest = (req, res) => {
 exports.addModerator = (req, res) => {
   if (!req.body) {
     return res.status(400).send({
-      message: "Content can not be empty!",
+      message: "Content can not be empty!"
     });
   }
 
@@ -356,14 +342,14 @@ exports.addModerator = (req, res) => {
 exports.removeModerator = (req, res) => {
   if (!req.body) {
     return res.status(400).send({
-      message: "Content can not be empty!",
+      message: "Content can not be empty!"
     });
   }
 
   let eventModerator = {
     moderator_id: req.body.participant_id,
     status_id: "ST12",
-    updated_at: getTimeStamp(),
+    updated_at: getTimeStamp()
   };
 
   EventModerator.update(eventModerator, (err, result) => {
@@ -375,7 +361,7 @@ exports.removeModerator = (req, res) => {
 exports.createParticipantReview = (req, res) => {
   if (!req.body) {
     return res.status(400).send({
-      message: "Content can not be empty!",
+      message: "Content can not be empty!"
     });
   }
 
@@ -406,7 +392,7 @@ exports.createParticipantReview = (req, res) => {
 exports.createEventReview = (req, res) => {
   if (!req.body) {
     return res.status(400).send({
-      message: "Content can not be empty!",
+      message: "Content can not be empty!"
     });
   }
 
@@ -463,7 +449,7 @@ exports.displayPic = (req, res) => {
 exports.updateInterestEvent = (req, res) => {
   if (!req.body) {
     return res.status(400).send({
-      message: "Content can not be empty!",
+      message: "Content can not be empty!"
     });
   }
 
@@ -535,7 +521,7 @@ exports.getParticipantToReview = (req, res) => {
   ParticipantReview.getParticipantToReview(
     {
       event_id: req.query.event_id,
-      user_id: req.query.user_id,
+      user_id: req.query.user_id
     },
     (err, result) => {
       if (err) return res.status(500).send({ message: err.message });
@@ -563,34 +549,44 @@ exports.getEventByCategory = (req, res) => {
 };
 
 exports.getApproverList = (req, res) => {
-  Event.getApproverList(
-    (err, result) => {
-      if (err) return res.status(500).send({ message: err.message });
-      else return res.status(200).send(result);
-    }
-  );
+  Event.getApproverList((err, result) => {
+    if (err) return res.status(500).send({ message: err.message });
+    else return res.status(200).send(result);
+  });
 };
-
 
 exports.getEventCount = (req, res) => {
-  Event.getEventCount(
-    (err, result) => {
-      if (err) return res.status(500).send({ message: err.message });
-      else return res.status(200).send(result);
-    }
-  );
+  Event.getEventCount((err, result) => {
+    if (err) return res.status(500).send({ message: err.message });
+    else return res.status(200).send(result);
+  });
 };
-
 
 exports.approving = (req, res) => {
-  if(req.body.approve == true) 
-    approve = "ST03"
-  else 
-    approve = "ST15"
-  Event.approving(req.body.event_id, approve,(err, result) => {
-      if (err) return res.status(500).send({ message: err.message });
-      else return res.status(200).send({message: res.message});
+  if (req.body.approve == true) approve = "ST03";
+  else approve = "ST15";
+  Event.approving(req.body.event_id, approve, (err, result) => {
+    if (err) return res.status(500).send({ message: err.message });
+    else if ((approve = "ST03")) {
+      Point.PointTransaction.getCount((err, count) => {
+        if (err) return res.status(500).send({ message: err.message });
+        else {
+          count++;
+          count = count.toString();
+          var point_transaction_id = "PT" + count.padStart(6, "0");
+          var pointEvent = new Point.PointEvent("");
+          pointEvent.point_transaction_id = point_transaction_id;
+          pointEvent.participant_id = req.body.host_id;
+          pointEvent.description = "Host event";
+          pointEvent.amount = 300;
+          pointEvent.created_at = getTimeStamp();
+          pointEvent.updated_at = getTimeStamp();
+          Point.PointTransaction.addPointHost(pointEvent, (err, result) => {
+            if (err) return res.status(500).send({ message: err.message });
+            else return res.status(200).send(result);
+          });
+        }
+      });
     }
-  );
+  });
 };
-

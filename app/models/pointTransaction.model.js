@@ -71,7 +71,7 @@ PointTransaction.getCount = (result) => {
   });
 };
 
-PointTransaction.addPointEvent = (newPointTransaction, result) => {
+PointTransaction.addPointJoin = (newPointTransaction, result) => {
   sql.query(
     `INSERT INTO PointTransaction (point_transaction_id, participant_id, description, amount, created_at, updated_at) VALUES
                                   ('${newPointTransaction.point_transaction_id}', (SELECT event_participant_id 
@@ -91,6 +91,17 @@ PointTransaction.addPointEvent = (newPointTransaction, result) => {
       result(null, { ...newPointTransaction });
     }
   );
+};
+
+PointTransaction.addPointHost = (newPointTransaction, result) => {
+  sql.query(`INSERT INTO PointTransaction SET ?`,newPointTransaction, (err, res) => {
+    if (err) {
+      console.log("error : ", err);
+      result(err, null);
+      return;
+    }
+    result(null, { ...newPointTransaction });
+  });
 };
 
 PointTransaction.getPointLog = (user_id, result) => {

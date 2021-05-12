@@ -35,7 +35,7 @@ EventReview.create = (newEventReview, result) => {
         WHERE participant_id = '${newEventReview.user_id}' 
         AND event_id = '${newEventReview.event_id}'),
       ${newEventReview.rating},
-      NULLIF('${newEventReview.comment}','undefined'),
+      NULLIF('${newEventReview.comment}',''),
       '${newEventReview.status_id}',
       '${newEventReview.created_at}',
       '${newEventReview.updated_at}'

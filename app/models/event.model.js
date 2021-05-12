@@ -119,7 +119,36 @@ Event.getHostedEvent = (user_id, result) => {
           WHERE
               EP.event_id = EV.event_id
               AND EP.participant_id = '${user_id}'
-      )), 0) AS isMod
+      )), 0) AS isMod,
+    (SELECT
+      IF(SUM(IF(
+          COALESCE(PR.participant_id, 0) = PR.participant_id,
+          0,
+          1
+      )) = 0 OR COUNT(*) = 0, 1, 0)
+      FROM
+          EventParticipant EP
+          LEFT JOIN EventParticipant REVIEW ON REVIEW.event_id = EP.event_id
+          LEFT JOIN ParticipantReview PR ON PR.participant_id = REVIEW.event_participant_id
+      WHERE
+          EP.event_id = EV.event_id
+          AND EP.participant_id = '${user_id}'
+          AND REVIEW.status_id = 'ST11'
+          AND NOT REVIEW.participant_id = '${user_id}') AS isParticipantRated,
+    COALESCE((SELECT
+      IF(status_id = 'ST02', 1, 0)
+    FROM
+      EventReview
+    WHERE
+      reviewer_id = (
+          SELECT
+              EP.event_participant_id
+          FROM
+              EventParticipant EP
+          WHERE
+              EP.event_id = EV.event_id
+              AND EP.participant_id = '${user_id}'
+      )), 0) AS isEventRated
     FROM EventParticipant EP\
     LEFT JOIN Event EV\ 
          ON EP.event_participant_id = EV.host_id\
@@ -170,7 +199,36 @@ Event.getJoinedEvent = (user_id, result) => {
           WHERE
               EP.event_id = EV.event_id
               AND EP.participant_id = '${user_id}'
-      )), 0) AS isMod
+      )), 0) AS isMod,
+    (SELECT
+      IF(SUM(IF(
+          COALESCE(PR.participant_id, 0) = PR.participant_id,
+          0,
+          1
+      )) = 0 OR COUNT(*) = 0, 1, 0)
+      FROM
+          EventParticipant EP
+          LEFT JOIN EventParticipant REVIEW ON REVIEW.event_id = EP.event_id
+          LEFT JOIN ParticipantReview PR ON PR.participant_id = REVIEW.event_participant_id
+      WHERE
+          EP.event_id = EV.event_id
+          AND EP.participant_id = '${user_id}'
+          AND REVIEW.status_id = 'ST11'
+          AND NOT REVIEW.participant_id = '${user_id}') AS isParticipantRated,
+    COALESCE((SELECT
+      IF(status_id = 'ST02', 1, 0)
+    FROM
+      EventReview
+    WHERE
+      reviewer_id = (
+          SELECT
+              EP.event_participant_id
+          FROM
+              EventParticipant EP
+          WHERE
+              EP.event_id = EV.event_id
+              AND EP.participant_id = '${user_id}'
+      )), 0) AS isEventRated
     FROM EventParticipant EP
     LEFT JOIN Event EV
          ON EP.event_id = EV.event_id
@@ -222,7 +280,36 @@ Event.getRequestedEvent = (user_id, result) => {
           WHERE
               EP.event_id = EV.event_id
               AND EP.participant_id = '${user_id}'
-      )), 0) AS isMod
+      )), 0) AS isMod,
+    (SELECT
+      IF(SUM(IF(
+          COALESCE(PR.participant_id, 0) = PR.participant_id,
+          0,
+          1
+      )) = 0 OR COUNT(*) = 0, 1, 0)
+      FROM
+          EventParticipant EP
+          LEFT JOIN EventParticipant REVIEW ON REVIEW.event_id = EP.event_id
+          LEFT JOIN ParticipantReview PR ON PR.participant_id = REVIEW.event_participant_id
+      WHERE
+          EP.event_id = EV.event_id
+          AND EP.participant_id = '${user_id}'
+          AND REVIEW.status_id = 'ST11'
+          AND NOT REVIEW.participant_id = '${user_id}') AS isParticipantRated,
+    COALESCE((SELECT
+      IF(status_id = 'ST02', 1, 0)
+    FROM
+      EventReview
+    WHERE
+      reviewer_id = (
+          SELECT
+              EP.event_participant_id
+          FROM
+              EventParticipant EP
+          WHERE
+              EP.event_id = EV.event_id
+              AND EP.participant_id = '${user_id}'
+      )), 0) AS isEventRated
     FROM EventParticipant EP\
     LEFT JOIN Event EV\ 
          ON EP.event_id = EV.event_id\
@@ -275,7 +362,36 @@ Event.getInterestedEvent = (user_id, result) => {
           WHERE
               EP.event_id = EV.event_id
               AND EP.participant_id = '${user_id}'
-      )), 0) AS isMod
+      )), 0) AS isMod,
+    (SELECT
+      IF(SUM(IF(
+          COALESCE(PR.participant_id, 0) = PR.participant_id,
+          0,
+          1
+      )) = 0 OR COUNT(*) = 0, 1, 0)
+      FROM
+          EventParticipant EP
+          LEFT JOIN EventParticipant REVIEW ON REVIEW.event_id = EP.event_id
+          LEFT JOIN ParticipantReview PR ON PR.participant_id = REVIEW.event_participant_id
+      WHERE
+          EP.event_id = EV.event_id
+          AND EP.participant_id = '${user_id}'
+          AND REVIEW.status_id = 'ST11'
+          AND NOT REVIEW.participant_id = '${user_id}') AS isParticipantRated,
+    COALESCE((SELECT
+      IF(status_id = 'ST02', 1, 0)
+    FROM
+      EventReview
+    WHERE
+      reviewer_id = (
+          SELECT
+              EP.event_participant_id
+          FROM
+              EventParticipant EP
+          WHERE
+              EP.event_id = EV.event_id
+              AND EP.participant_id = '${user_id}'
+      )), 0) AS isEventRated
     FROM User US\ 
     LEFT JOIN UserInterest UI\ 
          ON US.user_id = UI.user_id\
@@ -411,7 +527,7 @@ Event.getApproverList = (result) => {
       FROM Event EV, User US, EventParticipant EP
       WHERE EV.host_id = EP.event_participant_id AND 
           EP.participant_id = US.user_id 
-      ORDER BY EV.created_at 
+      ORDER BY EV.created_at DESC
     `,
     (err, res) => {
       if (err) {
