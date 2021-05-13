@@ -565,28 +565,52 @@ exports.getEventCount = (req, res) => {
 exports.approving = (req, res) => {
   if (req.body.approve == true) approve = "ST03";
   else approve = "ST15";
-  Event.approving(req.body.event_id, approve, (err, result) => {
-    if (err) return res.status(500).send({ message: err.message });
-    else if ((approve = "ST03")) {
-      Point.PointTransaction.getCount((err, count) => {
-        if (err) return res.status(500).send({ message: err.message });
-        else {
-          count++;
-          count = count.toString();
-          var point_transaction_id = "PT" + count.padStart(6, "0");
-          var pointEvent = new Point.PointEvent("");
-          pointEvent.point_transaction_id = point_transaction_id;
-          pointEvent.participant_id = req.body.host_id;
-          pointEvent.description = "Host event";
-          pointEvent.amount = 300;
-          pointEvent.created_at = getTimeStamp();
-          pointEvent.updated_at = getTimeStamp();
-          Point.PointTransaction.addPointHost(pointEvent, (err, result) => {
-            if (err) return res.status(500).send({ message: err.message });
-            else return res.status(200).send(result);
-          });
-        }
-      });
+  Event.approving(
+    req.body.event_id,
+    approve,
+    req.body.user_id,
+    (err, result) => {
+      if (err) return res.status(500).send({ message: err.message });
+      else if ((approve = "ST03")) {
+        Point.PointTransaction.getCount((err, count) => {
+          if (err) return res.status(500).send({ message: err.message });
+          else {
+            count++;
+            count = count.toString();
+            var point_transaction_id = "PT" + count.padStart(6, "0");
+            var pointEvent = new Point.PointEvent("");
+            pointEvent.point_transaction_id = point_transaction_id;
+            pointEvent.participant_id = req.body.host_id;
+            pointEvent.description = "Host event";
+            pointEvent.amount = 300;
+            pointEvent.created_at = getTimeStamp();
+            pointEvent.updated_at = getTimeStamp();
+            Point.PointTransaction.addPointHost(pointEvent, (err, result) => {
+              if (err) return res.status(500).send({ message: err.message });
+              else return res.status(200).send(result);
+            });
+          }
+        });
+      }
     }
+  );
+};
+
+exports.deleteEvent = (req, res) => {
+  if (!req.body) {
+    return res.status(400).send({
+      message: "Content can not be empty!"
+    });
+  }
+
+  let event = {
+    event_id: req.body.event_id,
+    status_id: "ST07",
+    updated_at: getTimeStamp()
+  };
+
+  Event.deleteEvent(event, (err, result) => {
+    if (err) return res.status(500).send({ message: err.message });
+    else return res.status(200).send(result);
   });
 };

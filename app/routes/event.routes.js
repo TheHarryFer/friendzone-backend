@@ -74,5 +74,7 @@ module.exports = function (app) {
 
   app.get("/api/event/getEventCount", controller.getEventCount);
 
-  app.post("/api/event/approving", controller.approving)
+  app.post("/api/event/approving", controller.approving);
+
+  app.post("/api/event/deleteEvent", controller.deleteEvent)
 };

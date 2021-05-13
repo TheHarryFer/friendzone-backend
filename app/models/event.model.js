@@ -78,6 +78,22 @@ Event.updateHost = (data, result) => {
   );
 };
 
+Event.deleteEvent = (data, result) => {
+  sql.query(
+    `UPDATE Event SET status_id = "${data.status_id}", updated_at = ${data.updated_at} WHERE event_id = "${data.event_id}"`,
+    (err, res) => {
+      if (err) {
+        console.log("error : ", err);
+        result(err, null);
+        return;
+      }
+
+      console.log("Deleted event : ", { ...data });
+      result(null, res);
+    }
+  );
+};
+
 Event.getEventPicturePath = (event_id, result) => {
   sql.query(
     `SELECT event_pic FROM Event WHERE event_id = '${event_id}'`,
@@ -450,7 +466,7 @@ Event.getUserCateogryInterestEvent = (user_id, result) => {
                                 
              UC.category_id = EC.category_id AND 
              EC.status = 1 AND UC.interest = 1 AND 
-             EV.end_at > ROUND(UNIX_TIMESTAMP(CURTIME(4)) * 1000) AND 
+             EV.start_at > ROUND(UNIX_TIMESTAMP(CURTIME(4)) * 1000) AND 
              EV.status_id = 'ST03'
     GROUP BY EP.event_id , EV.host_id
     ORDER BY RAND()
@@ -496,7 +512,7 @@ Event.getEventByCategory = (user_id, category_id, result) => {
                            EV.host_id = EP.event_participant_id AND 
                            EC.category_id = '${category_id}' AND 
                            EC.status = 1 AND 
-                           EV.end_at > ROUND(UNIX_TIMESTAMP(CURTIME(4)) * 1000) AND
+                           EV.start_at > ROUND(UNIX_TIMESTAMP(CURTIME(4)) * 1000) AND
                            EV.status_id = 'ST03'
      GROUP BY EP.event_id , EV.host_id
      ORDER BY RAND()
@@ -581,9 +597,9 @@ Event.getEventCount = (result) => {
   );
 };
 
-Event.approving = (event_id, status_id, result) => {
+Event.approving = (event_id, status_id, approver, result) => {
   sql.query(
-    `UPDATE Event SET status_id = '${status_id}' WHERE event_id = '${event_id}'`,
+    `UPDATE Event SET status_id = '${status_id}',approver_id = '${approver}' WHERE event_id = '${event_id}'`,
     (err, res) => {
       if (err) {
         console.log("error: ", err);
