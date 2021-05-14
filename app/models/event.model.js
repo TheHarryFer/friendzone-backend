@@ -94,6 +94,22 @@ Event.deleteEvent = (data, result) => {
   );
 };
 
+Event.endEvent = (data, result) => {
+  sql.query(
+    `UPDATE Event SET end_at = "${data.end_at}", updated_at = ${data.updated_at} WHERE event_id = "${data.event_id}"`,
+    (err, res) => {
+      if (err) {
+        console.log("error : ", err);
+        result(err, null);
+        return;
+      }
+
+      console.log("Ended event : ", { ...data });
+      result(null, res);
+    }
+  );
+};
+
 Event.getEventPicturePath = (event_id, result) => {
   sql.query(
     `SELECT event_pic FROM Event WHERE event_id = '${event_id}'`,

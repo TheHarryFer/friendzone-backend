@@ -1,5 +1,4 @@
 const sql = require("./db.connection.js");
-const $ = require("jquery");
 
 // Constructor
 const User = function (user) {
@@ -33,6 +32,23 @@ User.create = (newUser, result) => {
   });
 };
 
+User.updatePassword = (data, result) => {
+  sql.query(
+    `UPDATE User SET password = '${data.password}', updated_at = '${data.updated_at}' WHERE user_id = '${data.user_id}'`,
+    (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(err, null);
+        return;
+      }
+      if (res) {
+        //console.log("Updated password user: ", data.user_id)
+        result(null, { message: "password changed" });
+      }
+    }
+  );
+};
+
 User.getCount = (result) => {
   sql.query("SELECT COUNT(*) AS count FROM User;", (err, res) => {
     if (err) {
@@ -51,7 +67,7 @@ User.getCount = (result) => {
 
 User.findByidentification = (identification, result) => {
   sql.query(
-    `SELECT * FROM User WHERE username = '${identification}' OR email = '${identification}'`,
+    `SELECT * FROM User WHERE username = '${identification}' OR email = '${identification}' OR user_id = '${identification}'`,
     (err, res) => {
       if (err) {
         console.log("error: ", err);
@@ -132,23 +148,64 @@ User.getProfilePicturePath = (user_id, result) => {
 };
 
 User.getUser = (user_id, result) => {
-  sql.query(`SELECT US.*, GE.gender_name FROM User US LEFT JOIN Gender GE USING (gender_id) WHERE US.user_id = '${user_id}'`, (err, res) => {
-    if (err) {
-      console.log("error: ", err);
-      result(err, null);
+  sql.query(
+    `SELECT
+    US.*,
+    (SELECT gender_name FROM Gender WHERE gender_id = US.gender_id) AS gender,
+    COALESCE((
+      SELECT AVG(rating)
+      FROM ParticipantReview
+      WHERE participant_id IN (
+              SELECT event_participant_id
+              FROM EventParticipant
+              WHERE participant_id = US.user_id)
+      ), 0) AS rating,
+      (SELECT COUNT(*)
+              FROM EventParticipant EP
+              LEFT JOIN Event EV
+                     ON EP.event_participant_id = EV.host_id
+              LEFT JOIN User US
+                     ON US.user_id = EP.participant_id
+              WHERE  EP.participant_id = '${user_id}' AND NOT 
+                     EP.status_id = 'ST15' AND 
+                     EV.host_id = EP.event_participant_id) AS host,
+      (SELECT COUNT(*)
+              FROM EventParticipant EP
+                 LEFT JOIN Event EV
+                      ON EP.event_id = EV.event_id
+              LEFT JOIN EventParticipant HOST
+                     ON EV.host_id = HOST.event_participant_id
+                 LEFT JOIN User US
+                     ON US.user_id = HOST.participant_id
+              WHERE  EP.participant_id = '${user_id}' AND
+                     EP.status_id = 'ST11' AND 
+                     EV.status_id = 'ST03' AND NOT
+                     HOST.participant_id = '${user_id}') AS joined,
+      COUNT(IF(follower_id = '${user_id}', 1, NULL)) AS following,
+      COUNT(IF(following_id = '${user_id}', 1, NULL)) AS follower
+  FROM
+      Follower FO LEFT JOIN User US ON US.user_id = '${user_id}'
+  WHERE
+      (follower_id = '${user_id}' OR following_id = '${user_id}')
+      AND FO.status_id = 'ST09';`,
+    (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(err, null);
+        return;
+      }
+
+      if (res.length) {
+        //console.log("found user: ", res[0]);
+        result(null, res[0]);
+        return;
+      }
+
+      // not found user with the this user id
+      result({ message: "not_found" }, null);
       return;
     }
-
-    if (res.length) {
-      //console.log("found user: ", res[0]);
-      result(null, res[0]);
-      return;
-    }
-
-    // not found user with the this user id
-    result({ message: "not_found" }, null);
-    return;
-  });
+  );
 };
 
 User.editUser = (user, result) => {
@@ -164,6 +221,40 @@ User.editUser = (user, result) => {
 
       //console.log("Created user : ", { ...user });
       result(null, { ...user });
+    }
+  );
+};
+
+User.following = (newFollowing, result) => {
+  sql.query(
+    `INSERT INTO Follower SET ? ON DUPLICATE KEY UPDATE status_id = '${newFollowing.status_id}', updated_at = ${newFollowing.updated_at}`,
+    newFollowing,
+    (err, res) => {
+      if (err) {
+        console.log("error : ", err);
+        result(err, null);
+        return;
+      }
+
+      result(null, { ...newFollowing });
+      return;
+    }
+  );
+};
+
+User.unfollowing = (data, result) => {
+  sql.query(
+    `UPDATE Follower
+     SET status_id = '${data.status_id}', updated_at = ${data.updated_at}
+     WHERE follower_id = '${data.follower_id}' AND following_id = '${data.following_id}'`,
+    (err, res) => {
+      if (err) {
+        console.log("error : ", err);
+        result(err, null);
+        return;
+      }
+      result(null, {message: "unfollow"});
+      return;
     }
   );
 };

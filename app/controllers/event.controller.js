@@ -614,3 +614,22 @@ exports.deleteEvent = (req, res) => {
     else return res.status(200).send(result);
   });
 };
+
+exports.endEvent = (req, res) => {
+  if (!req.body) {
+    return res.status(400).send({
+      message: "Content can not be empty!"
+    });
+  }
+
+  let event = {
+    event_id: req.body.event_id,
+    end_at: req.body.end_at,
+    updated_at: getTimeStamp()
+  };
+
+  Event.endEvent(event, (err, result) => {
+    if (err) return res.status(500).send({ message: err.message });
+    else return res.status(200).send(result);
+  });
+};

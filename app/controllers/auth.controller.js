@@ -18,7 +18,7 @@ exports.signup = (req, res) => {
 
   if (!req.body) {
     return res.status(400).send({
-      message: "Content can not be empty!",
+      message: "Content can not be empty!"
     });
   }
 
@@ -52,8 +52,8 @@ exports.signup = (req, res) => {
             };
 
             var token = jwt.sign(payload, config.secret, {
-              expiresIn: 86400, // 24 hours
-            // expiresIn: 5,
+              expiresIn: 86400 // 24 hours
+              // expiresIn: 5,
             });
 
             res.cookie("user", token, { httpOnly: true, maxAge: 900000 });
@@ -83,7 +83,7 @@ exports.signin = (req, res) => {
       if (!passwordIsValid) {
         return res.status(401).send({
           accessToken: null,
-          message: "Invalid Password!",
+          message: "Invalid Password!"
         });
       }
 
@@ -93,13 +93,13 @@ exports.signin = (req, res) => {
       };
 
       var token = jwt.sign(payload, config.secret, {
-        expiresIn: 86400, // 24 hours
+        expiresIn: 86400 // 24 hours
         // expiresIn: 5,
       });
       res.cookie("user", token, { httpOnly: true, maxAge: 900000 });
 
       res.status(200).send({
-        token,
+        token
       });
     }
   });

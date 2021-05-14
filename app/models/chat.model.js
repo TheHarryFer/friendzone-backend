@@ -104,7 +104,10 @@ Chat.getChatList = (user_id, result) => {
    LEFT JOIN Chat CH
     ON CH.sender_id = CHATEP.event_participant_id
    WHERE EP.participant_id = '${user_id}' AND 	
-   EP.status_id = 'ST11'
+   EP.status_id = 'ST11' AND 
+   EV.status_id = 'ST03' AND 
+   EV.end_at > ROUND(UNIX_TIMESTAMP(CURTIME(4)) * 1000) 
+
    GROUP BY EV.event_id
    ORDER BY COALESCE(created ,0) DESC
  

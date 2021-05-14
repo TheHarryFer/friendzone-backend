@@ -76,5 +76,7 @@ module.exports = function (app) {
 
   app.post("/api/event/approving", controller.approving);
 
-  app.post("/api/event/deleteEvent", controller.deleteEvent)
+  app.post("/api/event/deleteEvent", controller.deleteEvent);
+
+  app.post("/api/event/endEvent", controller.endEvent);
 };
