@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS Discount(
     limits                  INT             NOT NULL,
     period_start            BIGINT          NOT NULL,
     period_end              BIGINT          NOT NULL,
-    use_within              BIGINT          NOT NULL,
+    expired                 BIGINT          NOT NULL,
     status_id               VARCHAR(4)      NOT NULL,
     created_at              BIGINT          NOT NULL,
     updated_at              BIGINT          NOT NULL,

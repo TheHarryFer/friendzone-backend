@@ -38,6 +38,8 @@ require("./app/routes/category.routes")(app);
 require("./app/routes/chat.routes")(app);
 require("./app/routes/pointTransaction.routes")(app);
 require("./app/routes/search.routes")(app);
+require("./app/routes/discount.routes")(app);
+
 
 
 
