@@ -55,6 +55,32 @@ destination: function (req, file, callback) {
   
 const upload = multer({ storage: storage }).single("uploadedImages");
 
+exports.displayPic = (req, res) => {
+  Discount.getDiscountPicturePath(req.params.discount_id, (err, discount) => {
+    if (err) return res.status(500).send({ message: err.message });
+    if (!discount)
+      return res.status(404).send({ message: "this discount is not found" });
+    else {
+      let fileType = path.extname(discount.discount_pic);
+
+      if (fileType === ".png") contentType = "image/png";
+      else if (fileType === ".jpg") contentType = "image/jpg";
+      else if (fileType === ".jpeg") contentType = "image/jpeg";
+      else contentType = "text/plain";
+
+      fs.readFile(_discountPicDir + discount.discount_pic, function (error, content) {
+        if (error) {
+          res.writeHead(500, { "Content-Type": "text/plain" });
+          res.end("Internal server error");
+        } else {
+          res.writeHead(200, { "Content-Type": contentType });
+          res.end(content);
+        }
+      });
+    }
+  });
+};
+
 exports.create = (req, res) => {
     if (!req.body) {
       return res.status(400).send({
@@ -86,6 +112,13 @@ exports.create = (req, res) => {
         });
       }
     });
-  };
+};
+
+exports.getBrowseDiscount = (req, res) => {
+  Discount.getBrowseDiscount((err, result) => {
+    if (err) return res.status(500).send({ message: err.message });
+    else return res.status(200).send(result);
+  });
+};
 
   
