@@ -57,12 +57,69 @@ Discount.uploadDiscountPic = (data, result) => {
   );
 };
 
+Discount.getHotDiscount = (result) => {
+  let currentTime = new Date().getTime();
+  sql.query(
+    `SELECT DC.discount_id, DC.name, DC.description, DC.redeem_point, DC.limits, DC.period_start, DC.period_end, DC.expired, COUNT(UD.discount_id) AS count
+     FROM Discount DC
+     LEFT JOIN UserDiscount UD
+            ON UD.discount_id = DC.discount_id
+     WHERE DC.status_id = 'ST02' AND ${currentTime} BETWEEN period_start AND period_end
+     GROUP BY DC.discount_id
+     ORDER BY count DESC
+    `,
+    (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(err, null);
+        return;
+      }
+      if (res.length) {
+        result(null, res);
+        return;
+      }
+
+      result(null, { message: "not found" });
+      return;
+    }
+  );
+};
+
+
 Discount.getBrowseDiscount = (result) => {
+  let currentTime = new Date().getTime();
   sql.query(
     `SELECT discount_id, name, description, redeem_point, limits, period_start, period_end, expired
      FROM Discount
-     WHERE status_id = 'ST02'
+     WHERE status_id = 'ST02' AND ${currentTime} BETWEEN period_start AND period_end
      ORDER BY period_start`,
+    (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(err, null);
+        return;
+      }
+      if (res.length) {
+        result(null, res);
+        return;
+      }
+
+      result(null, { message: "not found" });
+      return;
+    }
+  );
+};
+
+Discount.getMyDiscount = (user_id, result) => {
+  sql.query(
+    `SELECT DC.discount_id, DC.name, DC.description, DC.redeem_point, DC.limits, DC.period_start, DC.period_end, DC.expired
+    FROM Discount DC
+    LEFT JOIN UserDiscount UD 
+           ON UD.discount_id = DC.discount_id
+    WHERE DC.status_id = 'ST02' AND 
+        UD.user_id = '${user_id}'
+    GROUP BY DC.discount_id
+    ORDER BY DC.period_start`,
     (err, res) => {
       if (err) {
         console.log("error: ", err);
