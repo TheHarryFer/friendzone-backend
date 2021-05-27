@@ -1,4 +1,6 @@
+const UserDiscount = require("../models/userDiscount.model.js");
 const Discount = require("../models/discount.model.js");
+const Point = require("../models/pointTransaction.model.js");
 const multer = require("multer");
 const fs = require("fs");
 const fsPromises = fs.promises;
@@ -139,5 +141,61 @@ exports.getMyDiscount = (req, res) => {
   Discount.getMyDiscount(req.params.user_id ,(err, result) => {
     if (err) return res.status(500).send({ message: err.message });
     else return res.status(200).send(result);
+  });
+};
+
+exports.useDiscount = (req, res) => {
+  if (!req.body) {
+    return res.status(400).send({
+      message: "Content can not be empty!"
+    });
+  }
+
+  let userDiscount = {
+    user_discount_id: req.body.user_discount_id,
+    status_id: "ST17",
+    updated_at: getTimeStamp()
+  };
+
+  UserDiscount.update(userDiscount, (err, result) => {
+    if (err) return res.status(500).send({ message: err.message });
+    else return res.status(200).send(result);
+  });
+};
+
+exports.discountTransaction = (req, res) => {
+  if (!req.body) {
+    return res.status(400).send({
+      message: "Content can not be empty!"
+    });
+  }
+  Point.PointTransaction.getPoint(req.body.user_id, (err, userPoint) => {
+    if (err) return res.status(500).send({ message: err.message });
+    Discount.getDiscountPoint(req.body.discount_id, (err, discountPoint) => {
+      if (err) return res.status(500).send({ message: err.message });
+      if (discountPoint > userPoint) 
+        return res.status(400).send({ message: "not enough point" });
+      else {
+        UserDiscount.getCount((err, count) => {
+          if (err) return res.status(500).send({ message: err.message });
+          else {
+            count++;
+            count = count.toString();
+            var user_discount_id = "UD" + count.padStart(6, "0");
+            var userDiscount = new UserDiscount("");
+            userDiscount.user_discount_id = user_discount_id;
+            userDiscount.user_id = req.body.user_id;
+            userDiscount.discount_id = req.body.discount_id;
+            userDiscount.status_id = "ST16";
+            userDiscount.created_at = getTimeStamp();
+            userDiscount.updated_at = getTimeStamp();
+            UserDiscount.create(userDiscount, (err, result) => {
+              if (err) return res.status(500).send({ message: err.message });
+              else return res.status(200).send({ userDiscount_id: result.user_discount_id });
+            });
+          }
+        });
+      }    
+    })   
   });
 };

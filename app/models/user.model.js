@@ -181,13 +181,10 @@ User.getUser = (user_id, result) => {
                      EP.status_id = 'ST11' AND 
                      EV.status_id = 'ST03' AND NOT
                      HOST.participant_id = '${user_id}') AS joined,
-      COUNT(IF(follower_id = '${user_id}', 1, NULL)) AS following,
-      COUNT(IF(following_id = '${user_id}', 1, NULL)) AS follower
+      COUNT(IF(FO.follower_id = '${user_id}', IF(FO.status_id = 'ST09',1,NULL), NULL)) AS following,
+      COUNT(IF(FO.following_id ='${user_id}', IF(FO.status_id = 'ST09',1,NULL), NULL)) AS follower
   FROM
-      Follower FO LEFT JOIN User US ON US.user_id = '${user_id}'
-  WHERE
-      (follower_id = '${user_id}' OR following_id = '${user_id}')
-      AND FO.status_id = 'ST09';`,
+      Follower FO LEFT JOIN User US ON US.user_id = '${user_id}'`,
     (err, res) => {
       if (err) {
         console.log("error: ", err);

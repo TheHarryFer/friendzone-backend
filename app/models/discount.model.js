@@ -112,14 +112,13 @@ Discount.getBrowseDiscount = (result) => {
 
 Discount.getMyDiscount = (user_id, result) => {
   sql.query(
-    `SELECT DC.discount_id, DC.name, DC.description, DC.redeem_point, DC.limits, DC.period_start, DC.period_end, DC.expired
-    FROM Discount DC
-    LEFT JOIN UserDiscount UD 
+    `SELECT DC.discount_id, DC.name, DC.description, DC.redeem_point, DC.limits, DC.period_start, DC.period_end, DC.expired,
+      UD.user_discount_id, UD.status_id, UD.created_at
+    FROM UserDiscount UD
+    LEFT JOIN Discount DC
            ON UD.discount_id = DC.discount_id
-    WHERE DC.status_id = 'ST02' AND 
-        UD.user_id = '${user_id}'
-    GROUP BY DC.discount_id
-    ORDER BY DC.period_start`,
+    WHERE UD.user_id = '${user_id}'
+    ORDER BY UD.created_at DESC`,
     (err, res) => {
       if (err) {
         console.log("error: ", err);
@@ -160,4 +159,26 @@ Discount.getDiscountPicturePath = (discount_id, result) => {
   );
 };
 
+Discount.getDiscountPoint = (discount_id, result) => {
+  sql.query(
+    `SELECT redeem_point FROM Discount WHERE discount_id = '${discount_id}'`,
+    (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(err, null);
+        return;
+      }
+
+      if (res.length) {
+        //console.log("found discount: ", res[0]);
+        result(null, res[0]);
+        return;
+      }
+
+      // not found discount with the this discount id
+      result({ message: "not_found" }, null);
+      return;
+    }
+  );
+}
 module.exports = Discount;
