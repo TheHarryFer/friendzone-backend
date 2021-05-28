@@ -17,3 +17,10 @@ exports.getSearchEvent = (req, res) => {
     else return res.status(200).send(result);
   });
 };
+
+exports.getSearchDiscount = (req, res) => {
+  Search.getSearchDiscount(req.query.keyword, (err, result) => {
+    if (err) return res.status(500).send({ message: err.message });
+    else return res.status(200).send(result);
+  });
+};

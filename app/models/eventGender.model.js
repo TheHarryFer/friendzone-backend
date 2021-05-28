@@ -26,7 +26,7 @@ EventGender.create = (newEventGender, result) => {
 
 EventGender.getEventGenderList = (event_id, result) => {
   sql.query(
-    `SELECT GE.gender_name\
+    `SELECT GE.gender_id, GE.gender_name\
       FROM EventGender EG\
       LEFT JOIN Gender GE\ 
         ON EG.gender_id = GE.gender_id\

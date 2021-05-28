@@ -28,18 +28,20 @@ class PointDiscount {
 
 PointTransaction.getPoint = (user_id, result) => {
   sql.query(
-    ` SELECT SUM(amount1.point) AS point
+    `   
+    SELECT SUM(amount1.point) AS point
     FROM ((SELECT COALESCE(SUM(amount),0) AS point
-         FROM PointTransaction PT
-         INNER JOIN EventParticipant EP 
-                 ON EP.participant_id = '${user_id}' AND 
-                    EP.event_participant_id = PT.participant_id)
-      UNION 
-       (SELECT COALESCE(SUM(amount),0) AS point
-        FROM PointTransaction PT
-        INNER JOIN UserDiscount UD 
-                ON UD.user_id = '${user_id}')
-       ) amount1 `,
+          FROM PointTransaction PT
+           INNER JOIN EventParticipant EP 
+               ON EP.participant_id = '${user_id}' AND 
+                  EP.event_participant_id = PT.participant_id)
+        UNION 
+          (SELECT COALESCE(SUM(amount *-1),0) AS point
+            FROM PointTransaction PT
+            INNER JOIN UserDiscount UD 
+                    ON UD.user_id = '${user_id}' AND 
+                       UD.user_discount_id = PT.user_discount_id)
+     ) amount1 `,
     (err, res) => {
       if (err) {
         console.log("error: ", err);
@@ -93,7 +95,7 @@ PointTransaction.addPointJoin = (newPointTransaction, result) => {
   );
 };
 
-PointTransaction.addPointHost = (newPointTransaction, result) => {
+PointTransaction.addPoint = (newPointTransaction, result) => {
   sql.query(`INSERT INTO PointTransaction SET ?`,newPointTransaction, (err, res) => {
     if (err) {
       console.log("error : ", err);
@@ -106,7 +108,7 @@ PointTransaction.addPointHost = (newPointTransaction, result) => {
 
 PointTransaction.getPointLog = (user_id, result) => {
   sql.query(
-    ` SELECT amount1.point AS point, amount1.title, amount1.description, amount1.created_at
+    `      SELECT amount1.point AS point, amount1.title, amount1.description, amount1.created_at
     FROM ((SELECT COALESCE(amount,0) AS point, EV.title AS title, PT.description, PT.created_at
          FROM PointTransaction PT
          INNER JOIN EventParticipant EP 
@@ -115,10 +117,11 @@ PointTransaction.getPointLog = (user_id, result) => {
          INNER JOIN Event EV 
                 ON EP.event_id = EV.event_id)
       UNION ALL
-       (SELECT COALESCE(amount,0) AS point, DC.name AS title, PT.description, PT.created_at
+       (SELECT COALESCE(amount*-1 ,0) AS point, DC.name AS title, PT.description, PT.created_at
         FROM PointTransaction PT
         INNER JOIN UserDiscount UD 
-                ON UD.user_id = '${user_id}'
+                      ON UD.user_id = '${user_id}' AND 
+                         UD.user_discount_id = PT.user_discount_id
         INNER JOIN Discount DC 
                ON DC.discount_id = UD.discount_id)
        ) amount1`,

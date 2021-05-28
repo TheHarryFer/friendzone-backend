@@ -48,7 +48,9 @@ exports.signup = (req, res) => {
           if (user.user_id) {
             const payload = {
               user_id: user.user_id,
-              role_id: user.role_id
+              role_id: user.role_id,
+              gender_id: user.gender_id,
+              birthdate: user.birthdate
             };
 
             var token = jwt.sign(payload, config.secret, {
@@ -89,7 +91,9 @@ exports.signin = (req, res) => {
 
       const payload = {
         user_id: user.user_id,
-        role_id: user.role_id
+        role_id: user.role_id,
+        gender_id: user.gender_id,
+        birthdate: user.birthdate
       };
 
       var token = jwt.sign(payload, config.secret, {

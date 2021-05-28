@@ -37,7 +37,7 @@ Search.getSearchUser = (keyword, user_id, result) => {
     IF(COALESCE((SELECT F.status_id FROM Follower F WHERE F.follower_id = '${user_id}' AND F.following_id = US.user_id ), 'ST06') = 'ST06' ,0,1) AS status_id
     FROM User US
     WHERE US.username LIKE '%${keyword}%' AND NOT US.user_id = '${user_id}'
-    ORDER BY US.created_at`,
+    ORDER BY status_id DESC`,
     (err, res) => {
       if (err) {
         console.log("error : ", err);
@@ -56,6 +56,7 @@ Search.getSearchUser = (keyword, user_id, result) => {
 };
 
 Search.getSearchEvent = (keyword, user_id, result) => {
+  let currentTime = new Date().getTime();
   sql.query(
     `SELECT EV.* , US.username,US.user_id, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id) AS joined, 
     COALESCE((SELECT interest FROM UserInterest WHERE user_id = '${user_id}' AND event_id = EP.event_id ),0) AS interest
@@ -64,7 +65,33 @@ Search.getSearchEvent = (keyword, user_id, result) => {
         ON EP.event_participant_id = EV.host_id
     LEFT JOIN User US
         ON US.user_id = EP.participant_id
-    WHERE title LIKE '%${keyword}%' OR location LIKE '%${keyword}%'
+    WHERE (title LIKE '%${keyword}%' OR location LIKE '%${keyword}%') AND 
+          ${currentTime} < EV.end_at AND EV.status_id = 'ST03'
+    ORDER BY created_at`,
+    (err, res) => {
+      if (err) {
+        console.log("error : ", err);
+        result(err, null);
+        return;
+      }
+      if (res.length) {
+        result(null, res);
+        return;
+      } else {
+        result(null, []);
+        return;
+      }
+    }
+  );
+};
+
+Search.getSearchDiscount = (keyword, result) => {
+  let currentTime = new Date().getTime();
+  sql.query(
+    `SELECT discount_id, name, description, redeem_point, limits, period_start, period_end, expired
+    FROM Discount 
+    WHERE (name LIKE '%${keyword}%' OR description LIKE '%${keyword}%') AND
+          status_id = 'ST02' AND ${currentTime} BETWEEN period_start AND period_end
     ORDER BY created_at`,
     (err, res) => {
       if (err) {

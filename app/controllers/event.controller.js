@@ -585,7 +585,7 @@ exports.approving = (req, res) => {
             pointEvent.amount = 300;
             pointEvent.created_at = getTimeStamp();
             pointEvent.updated_at = getTimeStamp();
-            Point.PointTransaction.addPointHost(pointEvent, (err, result) => {
+            Point.PointTransaction.addPoint(pointEvent, (err, result) => {
               if (err) return res.status(500).send({ message: err.message });
               else return res.status(200).send(result);
             });
