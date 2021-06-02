@@ -195,7 +195,7 @@ CREATE TABLE IF NOT EXISTS Role(
 -- Create ReportType Table
 CREATE TABLE IF NOT EXISTS ReportType(
     report_type_id          VARCHAR(4)      NOT NULL,
-    type_name               VARCHAR(32)     NOT NULL,
+    type_name               VARCHAR(128)    NOT NULL,
     require_event           BOOLEAN         NOT NULL,
     require_suspect         BOOLEAN         NOT NULL,
     created_at              BIGINT          NOT NULL,
@@ -209,11 +209,11 @@ CREATE TABLE IF NOT EXISTS Report(
     report_id               VARCHAR(8)      NOT NULL,
     reporter_id             VARCHAR(8)      NOT NULL,
     report_type_id          VARCHAR(4)      NOT NULL,
-    title                   VARCHAR(32)     NOT NULL,
+    title                   VARCHAR(64)     NOT NULL,
     description             VARCHAR(256)    NOT NULL,
     event_id                VARCHAR(8)      NULL,
     suspect_id              VARCHAR(8)      NULL,
-    admin_id                VARCHAR(8)      NOT NULL,
+    admin_id                VARCHAR(8)      NULL,
     status_id               VARCHAR(4)      NOT NULL,
     created_at              BIGINT          NOT NULL,
     updated_at              BIGINT          NOT NULL,

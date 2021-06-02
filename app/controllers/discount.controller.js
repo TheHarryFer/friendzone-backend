@@ -124,14 +124,14 @@ exports.create = (req, res) => {
 };
 
 exports.getHotDiscount = (req, res) => {
-  Discount.getHotDiscount((err, result) => {
+  Discount.getHotDiscount(req.params.user_id, (err, result) => {
     if (err) return res.status(500).send({ message: err.message });
     else return res.status(200).send(result);
   });
 };
 
 exports.getBrowseDiscount = (req, res) => {
-  Discount.getBrowseDiscount((err, result) => {
+  Discount.getBrowseDiscount(req.params.user_id, (err, result) => {
     if (err) return res.status(500).send({ message: err.message });
     else return res.status(200).send(result);
   });

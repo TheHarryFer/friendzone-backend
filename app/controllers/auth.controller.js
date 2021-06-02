@@ -111,7 +111,6 @@ exports.signin = (req, res) => {
 
 exports.checkUniqueExists = (req, res) => {
   User.IsUserDuplicated(req.body, (err, user) => {
-    //console.log(user)
     if (err) return res.status(500).send({ message: err.message });
     if (user) return res.status(200).send(user);
     else return res.status(404).send(user);

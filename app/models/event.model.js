@@ -133,12 +133,33 @@ Event.getEventPicturePath = (event_id, result) => {
   );
 };
 
+Event.findEventByID = (event_id, result) => {
+  sql.query(
+    `SELECT event_id FROM Event WHERE event_id = '${event_id}'`,
+    (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(err, null);
+        result;
+      }
+      if (res.length) {
+        result(null, { message: "Found", event_id: res[0].event_id, exist: true });
+        return;
+      } else {
+        result(null, { message: "Not Found", exist: false });
+        return;
+      }
+    }
+  );
+};
+
 Event.getHostedEvent = (user_id, result) => {
   sql.query(
     `SELECT EV.* , US.username, US.user_id, EP.status_id AS participant_status, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id AND status_id = 'ST11') AS joined, COALESCE(UI.interest, 0) AS interest,\
      COALESCE((SELECT AVG(rating) FROM EventReview
       WHERE reviewer_id IN (SELECT event_participant_id FROM EventParticipant WHERE event_id = EV.event_id)), 0) AS rating,
-    COALESCE((SELECT
+      COALESCE(EP.event_participant_id,0) AS event_participant_id,
+      COALESCE((SELECT
       IF(status_id = 'ST03', 1, 0)
     FROM
       EventModerator
@@ -218,6 +239,7 @@ Event.getJoinedEvent = (user_id, result) => {
     `SELECT EV.* , US.username, US.user_id, EP.status_id AS participant_status, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id AND status_id = 'ST11') AS joined, COALESCE(UI.interest, 0) AS interest,\ 
     COALESCE((SELECT AVG(rating) FROM EventReview
     WHERE reviewer_id IN (SELECT event_participant_id FROM EventParticipant WHERE event_id = EV.event_id)), 0) AS rating,
+    COALESCE(EP.event_participant_id,0) AS event_participant_id,
     COALESCE((SELECT
       IF(status_id = 'ST03', 1, 0)
     FROM
@@ -378,9 +400,13 @@ Event.getRequestedEvent = (user_id, result) => {
 
 Event.getInterestedEvent = (user_id, result) => {
   sql.query(
-    `SELECT EV.*, HOSTUSER.username, HOSTUSER.user_id, (SELECT status_id FROM EventParticipant WHERE event_id = EV.event_id AND participant_id = '${user_id}') AS participant_status, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id AND status_id = 'ST11') AS joined,  COALESCE(UI.interest, 0) AS interest,\
+    `SELECT EV.*, HOSTUSER.username, HOSTUSER.user_id, (SELECT status_id FROM EventParticipant WHERE event_id = EV.event_id AND participant_id =  '${user_id}') AS participant_status, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id AND status_id = 'ST11') AS joined,  COALESCE(UI.interest, 0) AS interest,
     COALESCE((SELECT AVG(rating) FROM EventReview
     WHERE reviewer_id IN (SELECT event_participant_id FROM EventParticipant WHERE event_id = EV.event_id)), 0) AS rating,
+    COALESCE((SELECT EP.event_participant_id
+          	  FROM EventParticipant EP
+         	  WHERE EP.event_id = EV.event_id
+              	AND EP.participant_id = '${user_id}'),0) AS event_participant_id,
     COALESCE((SELECT
       IF(status_id = 'ST03', 1, 0)
     FROM
@@ -424,20 +450,21 @@ Event.getInterestedEvent = (user_id, result) => {
               EP.event_id = EV.event_id
               AND EP.participant_id = '${user_id}'
       )), 0) AS isEventRated
-    FROM User US\ 
-    LEFT JOIN UserInterest UI\ 
-         ON US.user_id = UI.user_id\
-    LEFT JOIN Event EV\ 
-         ON EV.event_id = UI.event_id\
-    LEFT JOIN EventParticipant HOST\
-         ON EV.host_id = HOST.event_participant_id\
-    LEFT JOIN User HOSTUSER\
-         ON HOSTUSER.user_id = HOST.participant_id\ 		
+    FROM User US 
+    LEFT JOIN UserInterest UI 
+         ON US.user_id = UI.user_id
+    LEFT JOIN Event EV
+         ON EV.event_id = UI.event_id
+    LEFT JOIN EventParticipant HOST
+         ON EV.host_id = HOST.event_participant_id
+    LEFT JOIN User HOSTUSER
+         ON HOSTUSER.user_id = HOST.participant_id		
          
-  WHERE  US.user_id = '${user_id}' AND\  
-       COALESCE(UI.interest, 0) = 1\
+  WHERE  US.user_id = '${user_id}' AND 
+       COALESCE(UI.interest, 0) = 1
        
-  ORDER BY EV.start_at\
+  ORDER BY EV.start_at
+
   `,
     (err, res) => {
       if (err) {

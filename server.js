@@ -39,10 +39,9 @@ require("./app/routes/chat.routes")(app);
 require("./app/routes/pointTransaction.routes")(app);
 require("./app/routes/search.routes")(app);
 require("./app/routes/discount.routes")(app);
-
-
-
-
+require("./app/routes/report.routes")(app);
+require("./app/routes/analyst.routes")(app);
+require("./app/routes/eventInvited.routes")(app);
 
 //listening
 const PORT = process.env.PORT || 8080;

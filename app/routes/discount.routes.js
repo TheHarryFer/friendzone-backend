@@ -7,9 +7,9 @@ module.exports = function (app) {
 
   app.post("/api/discount/useDiscount", controller.useDiscount);
 
-  app.get("/api/discount/getHotDiscount", controller.getHotDiscount);
+  app.get("/api/discount/getHotDiscount/:user_id", controller.getHotDiscount);
 
-  app.get("/api/discount/getBrowseDiscount", controller.getBrowseDiscount);
+  app.get("/api/discount/getBrowseDiscount/:user_id", controller.getBrowseDiscount);
 
   app.get("/api/discount/getMyDiscount/:user_id", controller.getMyDiscount);
 

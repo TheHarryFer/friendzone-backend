@@ -31,6 +31,7 @@ Discount.getCount = (result) => {
     }
   });
 };
+
 Discount.create = (newDiscount, result) => {
   sql.query(`INSERT INTO Discount SET ?`, newDiscount, (err, res) => {
     if (err) {
@@ -57,10 +58,11 @@ Discount.uploadDiscountPic = (data, result) => {
   );
 };
 
-Discount.getHotDiscount = (result) => {
+Discount.getHotDiscount = (user_id, result) => {
   let currentTime = new Date().getTime();
   sql.query(
-    `SELECT DC.discount_id, DC.name, DC.description, DC.redeem_point, DC.limits, DC.period_start, DC.period_end, DC.expired, COUNT(UD.discount_id) AS count
+    `SELECT DC.discount_id, DC.name, DC.description, DC.redeem_point, DC.limits, DC.period_start, DC.period_end, DC.expired, COUNT(UD.discount_id) AS count, 
+    (SELECT COUNT(*) FROM UserDiscount UD WHERE UD.user_id = '${user_id}' AND UD.discount_id = DC.discount_id) AS myDiscount
      FROM Discount DC
      LEFT JOIN UserDiscount UD
             ON UD.discount_id = DC.discount_id
@@ -86,13 +88,14 @@ Discount.getHotDiscount = (result) => {
 };
 
 
-Discount.getBrowseDiscount = (result) => {
+Discount.getBrowseDiscount = (user_id, result) => {
   let currentTime = new Date().getTime();
   sql.query(
-    `SELECT discount_id, name, description, redeem_point, limits, period_start, period_end, expired
-     FROM Discount
-     WHERE status_id = 'ST02' AND ${currentTime} BETWEEN period_start AND period_end
-     ORDER BY period_start`,
+    `	SELECT DC.discount_id, DC.name, DC.description, DC.redeem_point, DC.limits, DC.period_start, DC.period_end, DC.expired,
+    (SELECT COUNT(*) FROM UserDiscount UD WHERE UD.user_id = '${user_id}' AND UD.discount_id = DC.discount_id) AS myDiscount
+     FROM Discount DC
+     WHERE DC.status_id = 'ST02' AND ${currentTime} BETWEEN DC.period_start AND DC.period_end
+     ORDER BY DC.period_start`,
     (err, res) => {
       if (err) {
         console.log("error: ", err);
@@ -158,6 +161,5 @@ Discount.getDiscountPicturePath = (discount_id, result) => {
     }
   );
 };
-
 
 module.exports = Discount;

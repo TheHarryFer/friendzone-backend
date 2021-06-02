@@ -114,7 +114,7 @@ User.IsUserDuplicated = (user, result) => {
       }
       if (res.length) {
         //console.log("found user: " + res[0].user_id);
-        result(null, { message: "Duplicated", exist: true });
+        result(null, { message: "Duplicated", user_id: res[0].user_id, exist: true });
         return;
       } else {
         result(null, { message: "Not Duplicated", exist: false });

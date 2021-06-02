@@ -465,6 +465,14 @@ exports.updateInterestEvent = (req, res) => {
   });
 };
 
+exports.findEventByID = (req, res) => {
+  Event.findEventByID(req.body.event_id, (err, event) => {
+    if (err) return res.status(500).send({ message: err.message });
+    if (event) return res.status(200).send(event);
+    else return res.status(404).send(event);
+  });
+};
+
 exports.getEventGenderList = (req, res) => {
   EventGender.getEventGenderList(req.params.event_id, (err, result) => {
     if (err) return res.status(500).send({ message: err.message });

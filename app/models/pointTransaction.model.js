@@ -108,7 +108,7 @@ PointTransaction.addPoint = (newPointTransaction, result) => {
 
 PointTransaction.getPointLog = (user_id, result) => {
   sql.query(
-    `      SELECT amount1.point AS point, amount1.title, amount1.description, amount1.created_at
+    `           SELECT amount1.point AS point, amount1.title, amount1.description, amount1.created_at
     FROM ((SELECT COALESCE(amount,0) AS point, EV.title AS title, PT.description, PT.created_at
          FROM PointTransaction PT
          INNER JOIN EventParticipant EP 
@@ -124,7 +124,8 @@ PointTransaction.getPointLog = (user_id, result) => {
                          UD.user_discount_id = PT.user_discount_id
         INNER JOIN Discount DC 
                ON DC.discount_id = UD.discount_id)
-       ) amount1`,
+       ) amount1
+       ORDER BY created_at DESC`,
     (err, res) => {
       if (err) {
         console.log("error: ", err);

@@ -6,6 +6,7 @@ const fsPromises = fs.promises;
 const _profilePicDir = "./data/user/";
 const path = require("path");
 var bcrypt = require("bcryptjs");
+const { error } = require("jquery");
 
 function getTimeStamp() {
   return new Date().getTime();

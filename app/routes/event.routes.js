@@ -24,6 +24,8 @@ module.exports = function (app) {
 
   app.post("/api/event/createEventReview", controller.createEventReview);
 
+  app.post("/api/event/findEventByID", controller.findEventByID);
+
   app.get("/api/event/displayPic/:event_id", controller.displayPic);
 
   app.get(

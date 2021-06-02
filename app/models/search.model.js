@@ -7,6 +7,38 @@ const Search = function (search) {
   this.discount = search.discount;
 };
 
+Search.getSearchUserToInvite = (keyword, user_id, event_id, result) => {
+  sql.query(
+    `SELECT US.user_id, US.username,
+    COALESCE((SELECT AVG(PR.rating) FROM ParticipantReview PR, EventParticipant EP WHERE EP.participant_id = US.user_id AND PR.participant_id = EP.event_participant_id), 0) as rating,
+      IF(COALESCE((SELECT F.status_id FROM Follower F WHERE F.follower_id = '${user_id}' AND F.following_id = US.user_id ), 'ST06') = 'ST06' ,0,1) AS follow,
+      IF( EXISTS ( SELECT * 
+                   FROM EventInvited 
+                   WHERE invitee_id = US.user_id
+                        AND  inviter_id = ANY(SELECT event_participant_id 
+                                     FROM EventParticipant 
+                                     WHERE event_id = '${event_id}' AND 	
+                                         participant_id = '${user_id}')),1,0) AS invited
+  FROM User US 
+  WHERE US.user_id NOT IN (SELECT participant_id FROM EventParticipant WHERE event_id = '${event_id}') 
+      AND US.username LIKE '%${keyword}%'`,
+    (err, res) => {
+      if (err) {
+        console.log("error : ", err);
+        result(err, null);
+        return;
+      }
+      if (res.length) {
+        result(null, res);
+        return;
+      } else {
+        result(null, []);
+        return;
+      }
+    }
+  );
+};
+
 Search.getSearchUser = (keyword, user_id, result) => {
   sql.query(
     `SELECT US.user_id, US.bio, US.birthdate, (SELECT gender_name FROM Gender WHERE gender_id = US.gender_id) AS gender, US.username, US.firstname, US.lastname,
@@ -59,7 +91,11 @@ Search.getSearchEvent = (keyword, user_id, result) => {
   let currentTime = new Date().getTime();
   sql.query(
     `SELECT EV.* , US.username,US.user_id, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id) AS joined, 
-    COALESCE((SELECT interest FROM UserInterest WHERE user_id = '${user_id}' AND event_id = EP.event_id ),0) AS interest
+    COALESCE((SELECT interest FROM UserInterest WHERE user_id = '${user_id}' AND event_id = EP.event_id ),0) AS interest,
+    COALESCE((SELECT EP.event_participant_id
+      FROM EventParticipant EP
+     WHERE EP.event_id = EV.event_id
+        AND EP.participant_id = '${user_id}'),0) AS event_participant_id
     FROM EventParticipant EP
     LEFT JOIN Event EV
         ON EP.event_participant_id = EV.host_id
