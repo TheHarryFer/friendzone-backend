@@ -63,7 +63,7 @@ EventInvited.getNotification = (user_id, result) => {
   FROM(
     (SELECT "inviteRequest" AS type, EI.event_invited_id AS inviter_id, US.user_id, 
            US.username, EV.event_id, EV.title, 
-           FROM_UNIXTIME(EI.updated_at/1000 ,'%d %M %Y %H:%m') AS date,
+           DATE_FORMAT(FROM_UNIXTIME(EI.updated_at/1000),'%d %b %Y %H:%i') AS date,
            1 AS status,
            EI.updated_at AS TIMESTAMP
     FROM EventInvited EI 
@@ -81,7 +81,7 @@ EventInvited.getNotification = (user_id, result) => {
     
     (SELECT "accept" AS type, null AS inviter_id, null AS user_id,
          null AS username, EV.event_id, EV.title, 
-         FROM_UNIXTIME(EP.updated_at/1000 ,'%d %M %Y %H:%m') AS date,
+         DATE_FORMAT(FROM_UNIXTIME(EP.updated_at/1000),'%d %b %Y %H:%i') AS date,
          IF(EP.status_id = 'ST11',"accepted","declined") AS status ,
          EP.updated_at AS TIMESTAMP
     FROM Event EV 	
@@ -96,7 +96,7 @@ EventInvited.getNotification = (user_id, result) => {
     
     (SELECT "eventRequest" AS type, null AS inviter_id, US.user_id,
          US.username, EV.event_id, EV.title, 
-         FROM_UNIXTIME(EP.updated_at/1000 ,'%d %M %Y %H:%m') AS date,
+         DATE_FORMAT(FROM_UNIXTIME(EP.updated_at/1000),'%d %b %Y %H:%i') AS date,
          1 AS status, EP.updated_at AS TIMESTAMP
     FROM User US 
     INNER JOIN EventParticipant EP 
@@ -116,7 +116,7 @@ EventInvited.getNotification = (user_id, result) => {
     
     (SELECT "eventApproval" AS type, null AS inviter_id, null AS user_id, 
          null AS username, EV.event_id, EV.title,
-         FROM_UNIXTIME(EV.updated_at/1000 ,'%d %M %Y %H:%m') AS date,
+         DATE_FORMAT(FROM_UNIXTIME(EV.updated_at/1000),'%d %b %Y %H:%i') AS date,
          IF(EV.status_id = 'ST03','approved','rejected') AS status,
          EV.updated_at AS TIMESTAMP 
          FROM User US 	

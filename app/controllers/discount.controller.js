@@ -123,6 +123,34 @@ exports.create = (req, res) => {
   });
 };
 
+exports.editDiscount = (req, res) => {
+  req.body.updated_at = getTimeStamp();
+  
+  Discount.editDiscount(req.body, (err, discount) => {
+    if (err) return res.status(500).send({ message: err.message });
+    if (discount) return res.status(200).send(discount);
+  });
+};
+
+exports.deleteDiscount = (req, res) => {
+  if (!req.body) {
+    return res.status(400).send({
+      message: "Content can not be empty!"
+    });
+  }
+
+  let discount = {
+    discount_id: req.body.discount_id,
+    status_id: "ST10",
+    updated_at: getTimeStamp()
+  };
+
+  Discount.update(discount, (err, result) => {
+    if (err) return res.status(500).send({ message: err.message });
+    else return res.status(200).send(result);
+  });
+};
+
 exports.getHotDiscount = (req, res) => {
   Discount.getHotDiscount(req.params.user_id, (err, result) => {
     if (err) return res.status(500).send({ message: err.message });

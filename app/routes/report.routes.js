@@ -8,4 +8,6 @@ module.exports = function (app) {
   app.get("/api/report/getReportTypeEventList", controller.getReportTypeEventList);
 
   app.get("/api/report/getReportTypeWebList", controller.getReportTypeWebList);
+
+  app.post("/api/report/approveReport", controller.approveReport);
 };

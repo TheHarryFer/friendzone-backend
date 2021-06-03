@@ -90,20 +90,46 @@ Search.getSearchUser = (keyword, user_id, result) => {
 Search.getSearchEvent = (keyword, user_id, result) => {
   let currentTime = new Date().getTime();
   sql.query(
-    `SELECT EV.* , US.username,US.user_id, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id) AS joined, 
-    COALESCE((SELECT interest FROM UserInterest WHERE user_id = '${user_id}' AND event_id = EP.event_id ),0) AS interest,
-    COALESCE((SELECT EP.event_participant_id
-      FROM EventParticipant EP
-     WHERE EP.event_id = EV.event_id
-        AND EP.participant_id = '${user_id}'),0) AS event_participant_id
-    FROM EventParticipant EP
-    LEFT JOIN Event EV
-        ON EP.event_participant_id = EV.host_id
-    LEFT JOIN User US
-        ON US.user_id = EP.participant_id
-    WHERE (title LIKE '%${keyword}%' OR location LIKE '%${keyword}%') AND 
-          ${currentTime} < EV.end_at AND EV.status_id = 'ST03'
-    ORDER BY created_at`,
+    `SET @sql = NULL;
+    SELECT
+      GROUP_CONCAT(DISTINCT
+        CONCAT(
+          'MAX(CASE WHEN EC.category_id = ''',
+          CA.category_id,
+          '''THEN EC.status END) AS  ',
+          replace(CA.category_id, ' ', '')
+        )
+      ) INTO @sql
+    FROM Category CA;
+    
+    
+    SET @sql = CONCAT('SELECT EV.*, ', @sql, '
+      ,US.username, US.user_id, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id) AS joined, 
+      COALESCE((SELECT interest FROM UserInterest WHERE user_id = "${user_id}" AND event_id = EP.event_id ),0) AS interest,
+        COALESCE((SELECT EP.event_participant_id
+          FROM EventParticipant EP
+         WHERE EP.event_id = EV.event_id
+            AND EP.participant_id = "${user_id}"),0) AS event_participant_id,
+        MAX(CASE WHEN EG.gender_id = "GE01" THEN EG.status END) AS  "GE01",
+  	    MAX(CASE WHEN EG.gender_id = "GE02" THEN EG.status END) AS "GE02",
+  	    MAX(CASE WHEN EG.gender_id = "GE03" THEN EG.status END) AS "GE03"
+        FROM EventParticipant EP
+        LEFT JOIN Event EV
+            ON EP.event_participant_id = EV.host_id
+        LEFT JOIN User US
+            ON US.user_id = EP.participant_id
+        INNER JOIN EventCategory EC
+          ON EC.event_id = EV.event_id
+        INNER JOIN EventGender EG
+          ON EG.event_id = EV.event_id
+        WHERE (title LIKE "%${keyword}%" OR location LIKE "%${keyword}%") AND 
+              ${currentTime} < EV.end_at AND EV.status_id = "ST03"
+        GROUP BY EV.event_id
+        ORDER BY created_at');
+    
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;`,
     (err, res) => {
       if (err) {
         console.log("error : ", err);
@@ -111,7 +137,7 @@ Search.getSearchEvent = (keyword, user_id, result) => {
         return;
       }
       if (res.length) {
-        result(null, res);
+        result(null, res[4]);
         return;
       } else {
         result(null, []);

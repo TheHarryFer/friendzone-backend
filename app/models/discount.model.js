@@ -44,6 +44,38 @@ Discount.create = (newDiscount, result) => {
   });
 };
 
+Discount.update = (data, result) => {
+  sql.query(
+    `UPDATE Discount SET status_id = '${data.status_id}', updated_at = '${data.updated_at}' WHERE discount_id = '${data.discount_id}'`,
+    (err, res) => {
+      if (err) {
+        console.log("error : ", err);
+        result(err, null);
+        return;
+      }
+
+      //console.log("Updated discount : ", { ...data });
+      result(null, { ...data });
+    }
+  );
+};
+
+Discount.editDiscount = (discount, result) => {
+  sql.query(
+    `UPDATE Discount Set ? WHERE discount_id = "${discount.discount_id}"`,
+    discount,
+    (err, res) => {
+      if (err) {
+        console.log("error : ", err);
+        result(err, null);
+        return;
+      }
+
+      result(null, { ...discount });
+    }
+  );
+};
+
 Discount.uploadDiscountPic = (data, result) => {
   sql.query(
     `UPDATE Discount SET discount_pic = '${data.discount_pic}', updated_at = '${data.updated_at}' WHERE discount_id = '${data.discount_id}'`,

@@ -42,6 +42,8 @@ require("./app/routes/discount.routes")(app);
 require("./app/routes/report.routes")(app);
 require("./app/routes/analyst.routes")(app);
 require("./app/routes/eventInvited.routes")(app);
+require("./app/routes/admin.routes")(app);
+
 
 //listening
 const PORT = process.env.PORT || 8080;

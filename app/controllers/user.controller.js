@@ -6,6 +6,8 @@ const fsPromises = fs.promises;
 const _profilePicDir = "./data/user/";
 const path = require("path");
 var bcrypt = require("bcryptjs");
+var jwt = require("jsonwebtoken");
+const config = require("../config/auth.config");
 const { error } = require("jquery");
 
 function getTimeStamp() {
@@ -153,9 +155,28 @@ exports.getUserDetail = (req, res) => {
 };
 
 exports.editUser = (req, res) => {
-  User.editUser(req.body, (err, message) => {
-    if (err) return res.status(500).send({ message: err.message });
-    if (message) return res.status(200).send({ message: message });
+  User.editUser(req.body, (err, user) => {
+    if (err) return res.status(500).send({ message: err.user });
+    if (user) {
+      const payload = {
+        user_id: user.user_id,
+        role_id: user.role_id,
+        gender_id: user.gender_id,
+        birthdate: user.birthdate
+      };
+
+      var token = jwt.sign(payload, config.secret, {
+        expiresIn: 86400 // 24 hours
+        // expiresIn: 5,
+      });
+
+      res.cookie("user", token, { httpOnly: true, maxAge: 900000 });
+
+      res.status(200).send({
+        user_id: user.user_id,
+        token
+      });
+    }
   });
 };
 

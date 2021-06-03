@@ -53,3 +53,10 @@ exports.getReportTypeWebList = (req, res) => {
     if (reportType) return res.status(200).send(reportType);
   });
 };
+
+exports.approveReport = (req, res) => {
+  Report.approveReport(req.body, (err, result) => {
+    if (err) return res.status(500).send({ message: err.message });
+    if (result) return res.status(200).send(result);
+  });
+};
