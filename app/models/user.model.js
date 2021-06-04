@@ -99,6 +99,11 @@ User.findByUsername = (username, result) => {
             US.bio, 
             US.role_id, 
             US.status_id,
+            CASE 
+              WHEN US.status_id = 'ST04'
+                  THEN 'Banned'
+              ELSE 'Normal'
+            END AS status,
             (SELECT GE.gender_name FROM Gender GE WHERE GE.gender_id = US.gender_id) AS gender_name, 
             (SELECT RO.role FROM Role RO WHERE RO.role_id = US.role_id) AS role_name, 
             DATE_FORMAT(FROM_UNIXTIME(US.birthdate/1000),'%d %M %Y') AS birthdate,

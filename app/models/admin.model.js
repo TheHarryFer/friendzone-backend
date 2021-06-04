@@ -4,7 +4,7 @@ const Admin = [];
 
 Admin.getReportList = (result) => {
   sql.query(
-`SELECT RP.report_id,   
+    `SELECT RP.report_id,   
     CASE 
       WHEN RP.event_id IS NOT NULL
            THEN 'Event' 
@@ -38,7 +38,7 @@ INNER JOIN ReportType RT
       ON RP.report_type_id = RT.report_type_id
 INNER JOIN User US 
       ON US.user_id = RP.reporter_id 
-ORDER BY RP.created_at DESC`,
+ORDER BY RP.created_at DESC `,
     (err, res) => {
       if (err) {
         console.log("error: ", err);
@@ -50,16 +50,16 @@ ORDER BY RP.created_at DESC`,
         result(null, res);
         return;
       } else {
-        result(null, [])
-        return;US.birthdate
+        result(null, []);
+        return;
       }
     }
   );
 };
 
 Admin.getUserList = (result) => {
-    sql.query(
-  `SELECT US.user_id, US.bio, DATE_FORMAT(FROM_UNIXTIME(US.birthdate/1000),'%d %b %Y') AS birthdate,
+  sql.query(
+    `SELECT US.user_id, US.bio, US.email, US.phone, DATE_FORMAT(FROM_UNIXTIME(US.birthdate/1000),'%d %b %Y') AS birthdate,
   (SELECT gender_name FROM Gender WHERE gender_id = US.gender_id) AS gender, US.username, US.firstname, US.lastname,
   (SELECT COUNT(*) FROM Follower WHERE follower_id = US.user_id AND status_id = 'ST09') AS following, 
   (SELECT COUNT(*) FROM Follower WHERE following_id = US.user_id AND status_id = 'ST09') AS follower,
@@ -92,29 +92,28 @@ Admin.getUserList = (result) => {
     FROM User US
     INNER JOIN Role RO 	
     ON RO.role_id = US.role_id
-    ORDER BY status_id DESC`,
-      (err, res) => {
-        if (err) {
-          console.log("error: ", err);
-          result(err, null);
-          return;
-        }
-  
-        if (res.length) {
-          result(null, res);
-          return;
-        } else {
-          result(null, [])
-          return;
-        }
+    ORDER BY US.user_id DESC`,
+    (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(err, null);
+        return;
       }
-    );
+
+      if (res.length) {
+        result(null, res);
+        return;
+      } else {
+        result(null, []);
+        return;
+      }
+    }
+  );
 };
 
-
 Admin.getDiscountList = (result) => {
-    sql.query(
-  `SELECT DC.discount_id, DC.name, DC.description, DC.redeem_point, DC.limits, DC.status_id,
+  sql.query(
+    `SELECT DC.discount_id, DC.name, DC.description, DC.redeem_point, DC.limits, DC.status_id,
   DATE_FORMAT(FROM_UNIXTIME(DC.period_start/1000),'%d %b %Y %H:%i') AS period_start,
   DATE_FORMAT(FROM_UNIXTIME(DC.period_end/1000),'%d %b %Y %H:%i') AS period_end,
   DATE_FORMAT(FROM_UNIXTIME(DC.expired/1000),'%d %b %Y %H:%i') AS expired,
@@ -125,29 +124,29 @@ Admin.getDiscountList = (result) => {
        THEN 'Active'
     ELSE 'Inactive'
   END AS status  
-FROM Discount DC `,
-      (err, res) => {
-        if (err) {
-          console.log("error: ", err);
-          result(err, null);
-          return;
-        }
-  
-        if (res.length) {
-          result(null, res);
-          return;
-        } else {
-          result(null, [])
-          return;
-        }
+FROM Discount DC 
+ORDER BY DC.created_at DESC`,
+    (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(err, null);
+        return;
       }
-    );
-};
-  
 
-Admin.searchReport = (keyword,result) => {
+      if (res.length) {
+        result(null, res);
+        return;
+      } else {
+        result(null, []);
+        return;
+      }
+    }
+  );
+};
+
+Admin.searchReport = (keyword, result) => {
   sql.query(
-`SELECT RP.report_id,   
+    `SELECT RP.report_id,   
 CASE 
   WHEN RP.event_id IS NOT NULL 
        THEN 'Event' 
@@ -192,16 +191,16 @@ ORDER BY RP.created_at DESC`,
         result(null, res);
         return;
       } else {
-        result(null, [])
+        result(null, []);
         return;
       }
     }
   );
 };
 
-Admin.searchUser = (keyword,result) => {
+Admin.searchUser = (keyword, result) => {
   sql.query(
-`SELECT US.user_id, US.bio, US.birthdate,
+    `SELECT US.user_id, US.bio, US.birthdate,
 (SELECT gender_name FROM Gender WHERE gender_id = US.gender_id) AS gender, US.username, US.firstname, US.lastname,
 (SELECT COUNT(*) FROM Follower WHERE follower_id = US.user_id AND status_id = 'ST09') AS following, 
 (SELECT COUNT(*) FROM Follower WHERE following_id = US.user_id AND status_id = 'ST09') AS follower,
@@ -247,16 +246,16 @@ Admin.searchUser = (keyword,result) => {
         result(null, res);
         return;
       } else {
-        result(null, [])
+        result(null, []);
         return;
       }
     }
   );
 };
 
-Admin.searchDiscount = (keyword,result) => {
+Admin.searchDiscount = (keyword, result) => {
   sql.query(
-`    SELECT DC.discount_id, DC.name, DC.description, DC.redeem_point, DC.limits,
+    `    SELECT DC.discount_id, DC.name, DC.description, DC.redeem_point, DC.limits,
 DATE_FORMAT(FROM_UNIXTIME(DC.period_start/1000),'%d %b %Y') AS period_start,
 DATE_FORMAT(FROM_UNIXTIME(DC.period_end/1000),'%d %b %Y') AS period_end,
 DATE_FORMAT(FROM_UNIXTIME(DC.expired/1000),'%d %b %Y') AS expired,
@@ -281,10 +280,10 @@ WHERE DC.name LIKE '%${keyword}%'`,
         result(null, res);
         return;
       } else {
-        result(null, [])
+        result(null, []);
         return;
       }
     }
   );
-};        
+};
 module.exports = Admin;
