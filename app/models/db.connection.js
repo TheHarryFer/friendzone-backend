@@ -11,7 +11,7 @@ const connection = mysql.createConnection({
   port: dbConfig.PORT,
   multipleStatements: dbConfig.multipleStatements,
   connectTimeout: dbConfig.connectTimeout,
-  acquireTimeout: dbConfig.acquireTimeout,
+  acquireTimeout: dbConfig.acquireTimeout
 });
 
 // open the MySQL connection
@@ -19,7 +19,7 @@ connection.connect((error) => {
   if (error) throw error;
 
   console.log("Successfully connected to the " + dbConfig.DB + " database.");
-  
+
   // var tables = fs.readFileSync('./app/sql/tables.sql').toString();
   // connection.query(tables)
   // var foreignKey = fs.readFileSync('./app/sql/foreign.keys.sql').toString();

@@ -88,6 +88,11 @@ ALTER TABLE PointTransaction
     ADD FOREIGN KEY (user_discount_id)  REFERENCES UserDiscount(user_discount_id)
         ON UPDATE CASCADE ON DELETE CASCADE;
 
+-- Add Foreign Key To ReportType Table
+ALTER TABLE ReportType
+    ADD FOREIGN KEY (status_id)         REFERENCES Status(status_id)
+        ON UPDATE CASCADE ON DELETE CASCADE;
+
 -- Add Foreign Key To Report Table
 ALTER TABLE Report
     ADD FOREIGN KEY (reporter_id)       REFERENCES User(user_id)

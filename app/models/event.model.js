@@ -143,7 +143,11 @@ Event.findEventByID = (event_id, result) => {
         result;
       }
       if (res.length) {
-        result(null, { message: "Found", event_id: res[0].event_id, exist: true });
+        result(null, {
+          message: "Found",
+          event_id: res[0].event_id,
+          exist: true
+        });
         return;
       } else {
         result(null, { message: "Not Found", exist: false });
@@ -580,7 +584,6 @@ Event.getEventByCategory = (user_id, category_id, result) => {
     }
   );
 };
-
 
 Event.getApproverList = (result) => {
   sql.query(

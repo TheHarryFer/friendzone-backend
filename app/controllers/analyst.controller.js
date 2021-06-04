@@ -1,4 +1,4 @@
-const Analyst = require("../models/Analyst.model.js");
+const Analyst = require("../models/analyst.model.js");
 
 exports.getAppSummary = (req, res) => {
   Analyst.getAppSummary((err, data) => {

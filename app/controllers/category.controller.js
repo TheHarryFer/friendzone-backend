@@ -12,7 +12,7 @@ function getTimeStamp() {
 exports.create = (req, res) => {
   if (!req.body) {
     res.status(400).send({
-      message: "Content can not be empty!",
+      message: "Content can not be empty!"
     });
   }
 
@@ -21,7 +21,7 @@ exports.create = (req, res) => {
       res.status(500).send({
         message:
           err.message ||
-          "Some error occurred while getting count of the categories.",
+          "Some error occurred while getting count of the categories."
       });
     else {
       count++;
@@ -36,13 +36,27 @@ exports.create = (req, res) => {
 
       Category.create(category, (err, category) => {
         if (err) return res.status(500).send({ message: err.message });
-        res
-          .status(200)
-          .send({
-            message: "Category : " + category.category_name + " created"
-          });
+        res.status(200).send({
+          message: "Category : " + category.category_name + " created",
+          category_id: category.category_id
+        });
       });
     }
+  });
+};
+
+exports.update = (req, res) => {
+  if (!req.body) {
+    res.status(400).send({
+      message: "Content can not be empty!"
+    });
+  }
+
+  req.body.updated_at = getTimeStamp();
+
+  Category.update(req.body, (err, category) => {
+    if (err) return res.status(500).send({ message: err.message });
+    if (category) return res.status(200).send(category);
   });
 };
 
@@ -95,13 +109,14 @@ exports.uploadCategoryIcon = (req, res) => {
 
 const storage = multer.diskStorage({
   destination: function (req, file, callback) {
-    var filename = req.query.category_id + "-" + req.query.type + "-" + file.originalname;
+    var filename =
+      req.query.category_id + "-" + req.query.type + "-" + file.originalname;
     if (req.query.type === "white") {
       Category.uploadWhiteCategoryIcon(
         {
           category_id: req.query.category_id,
           icon_white: req.query.type + "/" + filename,
-          updated_at: getTimeStamp(),
+          updated_at: getTimeStamp()
         },
         (err, data) => {
           if (err) return res.status(500).send({ message: err.message });
@@ -113,7 +128,7 @@ const storage = multer.diskStorage({
         {
           category_id: req.query.category_id,
           icon_black: req.query.type + "/" + filename,
-          updated_at: getTimeStamp(),
+          updated_at: getTimeStamp()
         },
         (err, data) => {
           if (err) return res.status(500).send({ message: err.message });
@@ -124,9 +139,10 @@ const storage = multer.diskStorage({
     callback(null, _profilePicDir + req.query.type);
   },
   filename: function (req, file, callback) {
-    var filename = req.query.category_id + "-" + req.query.type + "-" + file.originalname;
+    var filename =
+      req.query.category_id + "-" + req.query.type + "-" + file.originalname;
     callback(null, filename);
-  },
+  }
 });
 
 const upload = multer({ storage: storage }).single("uploadedImages");
@@ -138,11 +154,9 @@ exports.displayCategoryIcon = (req, res) => {
       return res.status(404).send({ message: "this category is not found" });
     else {
       let icon;
-      if (req.query.type == "white")
-        icon = categoryIcon.icon_white;
-      else if (req.query.type == "black")
-        icon = categoryIcon.icon_black;
-      
+      if (req.query.type == "white") icon = categoryIcon.icon_white;
+      else if (req.query.type == "black") icon = categoryIcon.icon_black;
+
       let fileType = path.extname(icon);
 
       if (fileType === ".png") contentType = "image/png";

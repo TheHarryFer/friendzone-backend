@@ -7,7 +7,7 @@ function getTimeStamp() {
 exports.create = (req, res) => {
   if (!req.body) {
     return res.status(400).send({
-      message: "Content can not be empty!",
+      message: "Content can not be empty!"
     });
   }
 
@@ -35,7 +35,7 @@ exports.create = (req, res) => {
 exports.getChatList = (req, res) => {
   if (!req.body) {
     return res.status(400).send({
-      message: "Content can not be empty!",
+      message: "Content can not be empty!"
     });
   }
 
@@ -48,7 +48,7 @@ exports.getChatList = (req, res) => {
 exports.getChatHead = (req, res) => {
   if (!req.body) {
     return res.status(400).send({
-      message: "Content can not be empty!",
+      message: "Content can not be empty!"
     });
   }
 
@@ -61,7 +61,7 @@ exports.getChatHead = (req, res) => {
 exports.getMessages = (req, res) => {
   if (!req.body) {
     return res.status(400).send({
-      message: "Content can not be empty!",
+      message: "Content can not be empty!"
     });
   }
 

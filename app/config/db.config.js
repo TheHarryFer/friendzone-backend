@@ -7,5 +7,5 @@ module.exports = {
   dialect: "mysql",
   multipleStatements: true,
   connectTimeout: 20000,
-  acquireTimeout: 20000,
+  acquireTimeout: 20000
 };

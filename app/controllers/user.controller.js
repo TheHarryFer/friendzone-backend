@@ -136,6 +136,7 @@ exports.getUserDetail = (req, res) => {
     if (err) return res.status(500).send({ message: err.message });
     if (user)
       return res.status(200).send({
+        user_id: user.user_id,
         username: user.username,
         email: user.email,
         firstname: user.firstname,
@@ -162,7 +163,14 @@ exports.findByUsername = (req, res) => {
 };
 
 exports.editUser = (req, res) => {
+  if (!req.body) {
+    res.status(400).send({
+      message: "Content can not be empty!"
+    });
+  }
+
   req.body.updated_at = getTimeStamp();
+
   User.editUser(req.body, (err, user) => {
     if (err) return res.status(500).send({ message: err.user });
     if (user) {

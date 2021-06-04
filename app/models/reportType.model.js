@@ -10,20 +10,16 @@ const ReportType = function (reportType) {
 };
 
 ReportType.create = (newReportType, result) => {
-  sql.query(
-    `INSERT INTO ReportType VALUES ?`,
-    newReportType,
-    (err, res) => {
-      if (err) {
-        console.log("error : ", err);
-        result(err, null);
-        return;
-      }
-
-      //console.log("Created report type : ", { ...newReportType });
-      result(null, { ...newReportType });
+  sql.query(`INSERT INTO ReportType VALUES ?`, newReportType, (err, res) => {
+    if (err) {
+      console.log("error : ", err);
+      result(err, null);
+      return;
     }
-  );
+
+    //console.log("Created report type : ", { ...newReportType });
+    result(null, { ...newReportType });
+  });
 };
 
 ReportType.getReportTypeUserList = (result) => {

@@ -5,5 +5,5 @@ const bodyValidation = require("./body.validator");
 module.exports = {
   authJwt,
   auth,
-  bodyValidation,
+  bodyValidation
 };

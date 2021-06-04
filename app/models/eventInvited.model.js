@@ -26,20 +26,16 @@ EventInvited.getCount = (result) => {
 };
 
 EventInvited.create = (newEventInvited, result) => {
-  sql.query(
-    `INSERT INTO EventInvited SET ?`,
-    newEventInvited,
-    (err, res) => {
-      if (err) {
-        console.log("error : ", err);
-        result(err, null);
-        return;
-      }
-
-      //console.log("Created event invited : ", { ...newEventInvited });
-      result(null, { ...newEventInvited });
+  sql.query(`INSERT INTO EventInvited SET ?`, newEventInvited, (err, res) => {
+    if (err) {
+      console.log("error : ", err);
+      result(err, null);
+      return;
     }
-  );
+
+    //console.log("Created event invited : ", { ...newEventInvited });
+    result(null, { ...newEventInvited });
+  });
 };
 
 EventInvited.update = (data, result) => {
@@ -59,7 +55,8 @@ EventInvited.update = (data, result) => {
 };
 
 EventInvited.getNotification = (user_id, result) => {
-  sql.query(`SELECT type, inviter_id, user_id, username, event_id, title,date,status 
+  sql.query(
+    `SELECT type, inviter_id, user_id, username, event_id, title,date,status 
   FROM(
     (SELECT "inviteRequest" AS type, EI.event_invited_id AS inviter_id, US.user_id, 
            US.username, EV.event_id, EV.title, 
@@ -130,23 +127,24 @@ EventInvited.getNotification = (user_id, result) => {
     ORDER BY EV.updated_at DESC)
     )u
   ORDER BY TIMESTAMP DESC
-  LIMIT 20`
-  , (err, res) => {
-    if (err) {
-      console.log("error: ", err);
-      result(err, null);
-      return;
-    }
+  LIMIT 20`,
+    (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(err, null);
+        return;
+      }
 
-    if (res.length) {
-      //console.log("Count : ", res[0].count);
-      result(null, res);
-      return;
-    } else {
-      result(null, [])
-      return;
+      if (res.length) {
+        //console.log("Count : ", res[0].count);
+        result(null, res);
+        return;
+      } else {
+        result(null, []);
+        return;
+      }
     }
-  });
+  );
 };
 
 module.exports = EventInvited;

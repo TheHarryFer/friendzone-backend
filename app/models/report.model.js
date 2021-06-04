@@ -44,7 +44,8 @@ Report.create = (newReport, result) => {
 };
 
 Report.approveReport = (report, result) => {
-   sql.query(`UPDATE Report RP SET RP.status_id = IF(${report.takeAction} = 1,IF(RP.event_id IS NOT NULL, 'ST07', IF(RP.suspect_id IS NOT NULL, 'ST04' ,'ST14')) ,'ST14' ), RP.updated_at = UNIX_TIMESTAMP(NOW())*1000, RP.admin_id = '${report.admin_id}' WHERE RP.report_id = '${report.report_id}';
+  sql.query(
+    `UPDATE Report RP SET RP.status_id = IF(${report.takeAction} = 1,IF(RP.event_id IS NOT NULL, 'ST07', IF(RP.suspect_id IS NOT NULL, 'ST04' ,'ST14')) ,'ST14' ), RP.updated_at = UNIX_TIMESTAMP(NOW())*1000, RP.admin_id = '${report.admin_id}' WHERE RP.report_id = '${report.report_id}';
               UPDATE Event EV 
               INNER JOIN Report RP
                       ON EV.event_id = RP.event_id AND RP.report_id = '${report.report_id}' 
@@ -87,19 +88,21 @@ Report.approveReport = (report, result) => {
                     ON RP.report_type_id = RT.report_type_id
               INNER JOIN User US 
                     ON US.user_id = RP.reporter_id 
-              WHERE RP.report_id = '${report.report_id}'`, (err, res) => {
-    if (err) {
-      console.log("error : ", err);
-      result(err, null);
-      return;
-    }
+              WHERE RP.report_id = '${report.report_id}'`,
+    (err, res) => {
+      if (err) {
+        console.log("error : ", err);
+        result(err, null);
+        return;
+      }
 
-    if (res) {
-      //console.log("Count : ", res[0].count);
-      result(null, res[3]);
-      return;
+      if (res) {
+        //console.log("Count : ", res[0].count);
+        result(null, res[3]);
+        return;
+      }
     }
-  });
+  );
 };
 
 module.exports = Report;

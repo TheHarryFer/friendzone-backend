@@ -96,14 +96,18 @@ PointTransaction.addPointJoin = (newPointTransaction, result) => {
 };
 
 PointTransaction.addPoint = (newPointTransaction, result) => {
-  sql.query(`INSERT INTO PointTransaction SET ?`,newPointTransaction, (err, res) => {
-    if (err) {
-      console.log("error : ", err);
-      result(err, null);
-      return;
+  sql.query(
+    `INSERT INTO PointTransaction SET ?`,
+    newPointTransaction,
+    (err, res) => {
+      if (err) {
+        console.log("error : ", err);
+        result(err, null);
+        return;
+      }
+      result(null, { ...newPointTransaction });
     }
-    result(null, { ...newPointTransaction });
-  });
+  );
 };
 
 PointTransaction.getPointLog = (user_id, result) => {

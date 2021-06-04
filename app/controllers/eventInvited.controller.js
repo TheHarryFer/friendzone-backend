@@ -26,7 +26,10 @@ exports.create = (req, res) => {
       eventInvited.updated_at = getTimeStamp();
       EventInvited.create(eventInvited, (err, result) => {
         if (err) return res.status(500).send({ message: err.message });
-        else return res.status(200).send({ event_invited_id: result.event_invited_id });
+        else
+          return res
+            .status(200)
+            .send({ event_invited_id: result.event_invited_id });
       });
     }
   });

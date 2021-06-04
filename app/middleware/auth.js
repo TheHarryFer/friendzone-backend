@@ -12,7 +12,7 @@ const authMiddleware = (req, res, next) => {
 };
 
 const authJwt = {
-  verifyToken: verifyToken,
+  verifyToken: verifyToken
 };
 
 module.exports = authMiddleware;

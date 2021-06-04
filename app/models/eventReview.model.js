@@ -54,5 +54,4 @@ EventReview.create = (newEventReview, result) => {
   );
 };
 
-
 module.exports = EventReview;

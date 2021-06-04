@@ -125,7 +125,7 @@ exports.create = (req, res) => {
 
 exports.editDiscount = (req, res) => {
   req.body.updated_at = getTimeStamp();
-  
+
   Discount.editDiscount(req.body, (err, discount) => {
     if (err) return res.status(500).send({ message: err.message });
     if (discount) return res.status(200).send(discount);

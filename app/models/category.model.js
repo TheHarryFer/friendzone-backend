@@ -10,19 +10,6 @@ const Category = function (category) {
   this.updated_at = category.updated_at;
 };
 
-Category.create = (newCategory, result) => {
-  sql.query(`INSERT INTO Category SET ?`, newCategory, (err, res) => {
-    if (err) {
-      console.log("error : ", err);
-      result(err, null);
-      return;
-    }
-
-    console.log("Created category : ", { ...newCategory });
-    result(null, { ...newCategory });
-  });
-};
-
 Category.getCount = (result) => {
   sql.query("SELECT COUNT(*) AS count FROM Category;", (err, res) => {
     if (err) {
@@ -37,6 +24,36 @@ Category.getCount = (result) => {
       return;
     }
   });
+};
+
+Category.create = (newCategory, result) => {
+  sql.query(`INSERT INTO Category SET ?`, newCategory, (err, res) => {
+    if (err) {
+      console.log("error : ", err);
+      result(err, null);
+      return;
+    }
+
+    console.log("Created category : ", { ...newCategory });
+    result(null, { ...newCategory });
+  });
+};
+
+Category.update = (category, result) => {
+  sql.query(
+    `Update Category Set ? WHERE category_id = "${category.category_id}"`,
+    category,
+    (err, res) => {
+      if (err) {
+        console.log("error : ", err);
+        result(err, null);
+        return;
+      }
+
+      //console.log("Updated category : ", { ...category });
+      result(null, { ...category });
+    }
+  );
 };
 
 Category.getCategoryList = (result) => {
@@ -92,7 +109,7 @@ Category.getCategoryIconPath = (category_id, result) => {
         result(err, null);
         return;
       }
-      
+
       if (res.length) {
         //console.log("found category: ", res[0]);
         result(null, res[0]);
@@ -105,7 +122,6 @@ Category.getCategoryIconPath = (category_id, result) => {
     }
   );
 };
-
 
 Category.getCategoryFromUserID = (user_id, result) => {
   sql.query(
@@ -120,7 +136,7 @@ Category.getCategoryFromUserID = (user_id, result) => {
         result(err, null);
         return;
       }
-      
+
       if (res.length) {
         //console.log("found category: ", res[0]);
         result(null, res);
@@ -133,4 +149,5 @@ Category.getCategoryFromUserID = (user_id, result) => {
     }
   );
 };
+
 module.exports = Category;

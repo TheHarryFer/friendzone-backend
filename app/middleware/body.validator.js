@@ -8,7 +8,7 @@ const bodyValidation = () => {
     body("firstName").isLength({ max: 64 }).trim(),
     body("lastName").isLength({ max: 64 }).trim(),
     body("phone").isLength({ max: 10 }).trim(),
-    body("bio").isLength({ max: 150 }).trim(),
+    body("bio").isLength({ max: 150 }).trim()
   ];
 };
 

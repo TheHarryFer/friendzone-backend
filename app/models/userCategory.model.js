@@ -9,16 +9,20 @@ const UserCategory = function (userCategory) {
 };
 
 UserCategory.create = (newUserCategory, result) => {
-  sql.query(`INSERT INTO UserCategory VALUES ? ON DUPLICATE KEY UPDATE interest = VALUES(interest), updated_at = VALUES(updated_at)`, [newUserCategory], (err, res) => {
-    if (err) {
-      console.log("error : ", err);
-      result(err, null);
-      return;
-    }
+  sql.query(
+    `INSERT INTO UserCategory VALUES ? ON DUPLICATE KEY UPDATE interest = VALUES(interest), updated_at = VALUES(updated_at)`,
+    [newUserCategory],
+    (err, res) => {
+      if (err) {
+        console.log("error : ", err);
+        result(err, null);
+        return;
+      }
 
-    //console.log("Updated user category : ", { ...newUserCategory });
-    result(null, { ...newUserCategory });
-  });
+      //console.log("Updated user category : ", { ...newUserCategory });
+      result(null, { ...newUserCategory });
+    }
+  );
 };
 
 module.exports = UserCategory;

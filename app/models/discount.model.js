@@ -119,7 +119,6 @@ Discount.getHotDiscount = (user_id, result) => {
   );
 };
 
-
 Discount.getBrowseDiscount = (user_id, result) => {
   let currentTime = new Date().getTime();
   sql.query(
