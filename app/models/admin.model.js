@@ -135,6 +135,14 @@ FROM Discount DC `,
   
         if (res.length) {
           result(null, res);
+          return;
+        } else {
+          result(null, [])
+          return;
+        }
+      }
+    );
+};
   
 
 Admin.searchReport = (keyword,result) => {
@@ -278,12 +286,5 @@ WHERE DC.name LIKE '%${keyword}%'`,
       }
     }
   );
-};        return;
-        } else {
-          result(null, [])
-          return;
-        }
-      }
-    );
-};
+};        
 module.exports = Admin;

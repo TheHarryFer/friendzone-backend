@@ -16,6 +16,8 @@ module.exports = function (app) {
 
   app.get("/api/user/getUserDetail/:user_id", controller.getUserDetail);
 
+  app.post("/api/user/findByUsername", controller.findByUsername);
+
   app.post("/api/user/following", controller.following);
 
   app.post("/api/user/unfollowing", controller.unfollowing);

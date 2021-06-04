@@ -154,6 +154,14 @@ exports.getUserDetail = (req, res) => {
   });
 };
 
+exports.findByUsername = (req, res) => {
+  User.findByUsername(req.body.username, (err, user) => {
+    if (err) return res.status(500).send({ message: err.message });
+    if (user)
+      return res.status(200).send(user);
+  });
+};
+
 exports.editUser = (req, res) => {
   User.editUser(req.body, (err, user) => {
     if (err) return res.status(500).send({ message: err.user });

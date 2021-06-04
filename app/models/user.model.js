@@ -88,6 +88,41 @@ User.findByidentification = (identification, result) => {
   );
 };
 
+User.findByUsername = (username, result) => {
+  sql.query(
+    `SELECT US.user_id, 
+            US.username, 
+            US.email,
+            US.firstname, 
+            US.lastname, 
+            US.phone, 
+            US.bio, 
+            US.role_id, 
+            US.status_id,
+            (SELECT GE.gender_name FROM Gender GE WHERE GE.gender_id = US.gender_id) AS gender_name, 
+            (SELECT RO.role FROM Role RO WHERE RO.role_id = US.role_id) AS role_name, 
+            DATE_FORMAT(FROM_UNIXTIME(US.birthdate/1000),'%d %M %Y') AS birthdate,
+            DATE_FORMAT(FROM_UNIXTIME(US.created_at/1000),'%d %M %Y %H:%i') AS created_at,
+            DATE_FORMAT(FROM_UNIXTIME(US.updated_at/1000),'%d %M %Y %H:%i') AS updated_at
+    FROM User US WHERE US.username = '${username}'`,
+    (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(err, null);
+        return;
+      }
+
+      if (res.length) {
+        result(null, res[0]);
+        return;
+      } else {
+        result(null, { message: "not_found" });
+        return;
+      }
+    }
+  );
+};
+
 User.uploadProfilePic = (data, result) => {
   sql.query(
     `UPDATE User SET profile_pic = '${data.profile_pic}', updated_at = '${data.updated_at}' WHERE user_id = '${data.user_id}'`,
@@ -114,7 +149,11 @@ User.IsUserDuplicated = (user, result) => {
       }
       if (res.length) {
         //console.log("found user: " + res[0].user_id);
-        result(null, { message: "Duplicated", user_id: res[0].user_id, exist: true });
+        result(null, {
+          message: "Duplicated",
+          user_id: res[0].user_id,
+          exist: true
+        });
         return;
       } else {
         result(null, { message: "Not Duplicated", exist: false });
@@ -250,7 +289,7 @@ User.unfollowing = (data, result) => {
         result(err, null);
         return;
       }
-      result(null, {message: "unfollow"});
+      result(null, { message: "unfollow" });
       return;
     }
   );
