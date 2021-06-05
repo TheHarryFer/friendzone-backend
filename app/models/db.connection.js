@@ -32,6 +32,8 @@ connection.connect((error) => {
   // connection.query(statusData)
   // var categoryData = fs.readFileSync('./app/sql/category.data.sql').toString();
   // connection.query(categoryData)
+  // var reportTypeData = fs.readFileSync('./app/sql/reportType.data.sql').toString();
+  // connection.query(reportTypeData)
 });
 
 module.exports = connection;
