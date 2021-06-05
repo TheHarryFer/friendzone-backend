@@ -123,13 +123,13 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage }).single("uploadedImages");
 
-exports.create = (req, res) => {
+exports.create = async (req, res) => {
   if (!req.body) {
     return res.status(400).send({
       message: "Content can not be empty!"
     });
   }
-  Event.getCount((err, count) => {
+  Event.getCount(async (err, count) => {
     if (err) return res.status(500).send({ message: err.message });
     else {
       count++;
@@ -151,11 +151,11 @@ exports.create = (req, res) => {
       event.created_at = getTimeStamp();
       event.updated_at = getTimeStamp();
 
-      Event.create(event, (err, event) => {
+      Event.create(event, async (err, event) => {
         if (err) return res.status(500).send({ message: err.message });
         else {
           if (event.event_id) {
-            EventParticipant.getCount((err, count) => {
+            EventParticipant.getCount(async (err, count) => {
               if (err) return res.status(500).send({ message: err.message });
               else {
                 count++;
@@ -180,9 +180,45 @@ exports.create = (req, res) => {
                     if (createGender(genderList) == "err") {
                       res.status(500).send({ message: err.message });
                     } else {
-                      return res.status(200).send({
-                        event_id: event_id
-                      });
+                      if (event.status_id == "ST03") {
+                        Point.PointTransaction.getCount(async (err, count) => {
+                          if (err)
+                            return res
+                              .status(500)
+                              .send({ message: err.message });
+                          else {
+                            count++;
+                            count = count.toString();
+                            var point_transaction_id =
+                              "PT" + count.padStart(6, "0");
+                            var pointEvent = new Point.PointEvent("");
+                            pointEvent.point_transaction_id =
+                              point_transaction_id;
+                            pointEvent.participant_id = event_participant_id;
+                            pointEvent.description = "Host event";
+                            pointEvent.amount = 300;
+                            pointEvent.created_at = getTimeStamp();
+                            pointEvent.updated_at = getTimeStamp();
+                            Point.PointTransaction.addPoint(
+                              pointEvent,
+                              (err, result) => {
+                                if (err)
+                                  return res
+                                    .status(500)
+                                    .send({ message: err.message });
+                                else
+                                  return res.status(200).send({
+                                    event_id: event_id
+                                  });
+                              }
+                            );
+                          }
+                        });
+                      } else {
+                        return res.status(200).send({
+                          event_id: event_id
+                        });
+                      }
                     }
                   }
                 }

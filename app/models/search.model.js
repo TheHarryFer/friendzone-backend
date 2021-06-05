@@ -104,7 +104,7 @@ Search.getSearchEvent = (keyword, user_id, result) => {
     
     
     SET @sql = CONCAT('SELECT EV.*, ', @sql, '
-      ,US.username, US.user_id, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id) AS joined, 
+      ,US.username, US.user_id, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id AND status_id = "ST11") AS joined, 
       COALESCE((SELECT interest FROM UserInterest WHERE user_id = "${user_id}" AND event_id = EP.event_id ),0) AS interest,
         COALESCE((SELECT EP.event_participant_id
           FROM EventParticipant EP

@@ -135,7 +135,7 @@ Event.getEventPicturePath = (event_id, result) => {
 
 Event.findEventByID = (event_id, result) => {
   sql.query(
-    `SELECT event_id FROM Event WHERE event_id = '${event_id}'`,
+    `SELECT event_id FROM Event WHERE event_id = '${event_id}' AND NOT status_id = 'ST07'`,
     (err, res) => {
       if (err) {
         console.log("error: ", err);
@@ -492,7 +492,7 @@ Event.getInterestedEvent = (user_id, result) => {
 Event.getUserCateogryInterestEvent = (user_id, result) => {
   sql.query(
     `
-    SELECT EV.* , US.username,US.user_id, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id) AS joined, 
+    SELECT EV.* , US.username,US.user_id, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id AND status_id = "ST11") AS joined, 
     COALESCE((SELECT interest FROM UserInterest WHERE user_id =  '${user_id}'  AND event_id = EP.event_id ),0) AS interest
 FROM EventParticipant EP
 LEFT JOIN Event EV
@@ -538,18 +538,21 @@ LIMIT 20
 
 Event.getEventByCategory = (user_id, category_id, result) => {
   sql.query(
-    `    SELECT EV.* , US.username,US.user_id, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id) AS joined,
+    `    SELECT EV.* , US.username,US.user_id, (SELECT Count(*) FROM EventParticipant WHERE event_id = EV.event_id AND status_id = "ST11") AS joined,
     COALESCE((SELECT interest FROM UserInterest WHERE user_id = '${user_id}' AND event_id = EP.event_id ),0) AS interest,
-   COALESCE(IF(FO.follower_id = '${user_id}', 1, 0),0) AS followHost
-    FROM EventParticipant EP
-    LEFT JOIN Event EV
+    COALESCE(IF((SELECT FO.follower_id 
+    			 FROM Follower FO 
+    			 WHERE FO.follower_id = '${user_id}' AND 
+    			       FO.following_id = US.user_id AND 
+    			       FO.status_id = 'ST09' ) = '${user_id}', 1, 0),0) AS followHost
+    FROM Event EV
+    LEFT JOIN EventParticipant EP
         ON EP.event_participant_id = EV.host_id
     LEFT JOIN User US
         ON US.user_id = EP.participant_id
     LEFT JOIN EventCategory EC 
-        ON EV.event_id = EC.event_id    
-    LEFT JOIN Follower FO 	
-        ON FO.following_id = US.user_id
+        ON EV.event_id = EC.event_id 
+           AND EC.category_id = '${category_id}'   
     WHERE NOT EP.participant_id = '${user_id}' AND  
               (NOT EV.event_id IN (SELECT EP.event_id 
                                FROM EventParticipant EP 
@@ -558,10 +561,9 @@ Event.getEventByCategory = (user_id, category_id, result) => {
                                FROM EventParticipant EP 
                                WHERE EP.participant_id = '${user_id}' AND EP.status_id = 'ST12')) AND
                           EV.host_id = EP.event_participant_id AND 
-                          EC.category_id = '${category_id}' AND 
                           EC.status = 1 AND 
                           EV.start_at > ROUND(UNIX_TIMESTAMP(CURTIME(4)) * 1000) AND
-                          EV.status_id = 'ST03' AND FO.status_id = 'ST09'
+                          EV.status_id = 'ST03' 
     GROUP BY EP.event_id , EV.host_id
     ORDER BY RAND()
     LIMIT 20

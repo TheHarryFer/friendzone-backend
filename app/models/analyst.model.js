@@ -49,18 +49,16 @@ Analyst.getEventSummary = (result) => {
 Analyst.getEventCategorySummary = (result) => {
   sql.query(
     `SELECT CA.category_id, 
-             CA.category_name,
-             CA.color_code,
-             CA.icon_white,
-             COALESCE(COUNT(*), 0) AS count,
-             COALESCE((COUNT(*) / (SELECT COUNT(*) FROM Event) * 100), 0) AS percent
-             FROM Category CA
-             LEFT JOIN EventCategory EC 
-                    ON CA.category_id = EC.category_id
-             INNER JOIN Event EV
-                    ON EV.event_id = EC.event_id
-             GROUP BY EC.category_id
-             ORDER BY percent DESC`,
+    CA.category_name,
+    CA.color_code,
+    CA.icon_white,
+    COALESCE(COUNT(EC.category_id), 0) AS count,
+    COALESCE((COUNT(*) / (SELECT COUNT(*) FROM Event) * 100), 0) AS percent
+    FROM Category CA
+    LEFT JOIN EventCategory EC 
+           ON CA.category_id = EC.category_id
+    GROUP BY CA.category_id
+    ORDER BY percent DESC`,
     (err, res) => {
       if (err) {
         console.log("error: ", err);
@@ -79,29 +77,29 @@ Analyst.getEventCategorySummary = (result) => {
 Analyst.getUserSummary = (result) => {
   sql.query(
     `(SELECT GE.gender_name AS name,
-             COALESCE((COUNT(*) / (SELECT COUNT(*) FROM User) * 100),0) AS percent
-             FROM User US 
-             INNER JOIN Gender GE
-              ON GE.gender_id = US.gender_id
-             GROUP BY GE.gender_id
-             ORDER BY percent)
-             UNION
-             (SELECT
-              CASE 
-                WHEN UNIX_TIMESTAMP(NOW() - INTERVAL 18 YEAR)*1000 < birthdate AND birthdate < UNIX_TIMESTAMP(NOW() - INTERVAL 13 YEAR)*1000 
-                    THEN '13-17'
-                WHEN UNIX_TIMESTAMP(NOW() - INTERVAL 24 YEAR) * 1000 < birthdate  
-                    THEN '18-24'
-                WHEN UNIX_TIMESTAMP(NOW() - INTERVAL 34 YEAR) * 1000 < birthdate
-                    THEN '25-34'
-                WHEN UNIX_TIMESTAMP(NOW() - INTERVAL 44 YEAR) * 1000 < birthdate
-                    THEN '34-44'
-                ELSE '44+'
-                END AS name, COALESCE((COUNT(*) / (SELECT COUNT(*) FROM User) * 100),0) AS percent
-              FROM User
-              GROUP BY name
-              ORDER BY percent DESC
-              LIMIT 1)`,
+      COALESCE((COUNT(US.gender_id) / (SELECT COUNT(*) FROM User) * 100),0) AS percent
+      FROM User US 
+      RIGHT JOIN Gender GE
+       ON GE.gender_id = US.gender_id
+      GROUP BY GE.gender_id
+      ORDER BY percent)
+      UNION
+      (SELECT
+       CASE 
+         WHEN UNIX_TIMESTAMP(NOW() - INTERVAL 18 YEAR)*1000 < US.birthdate AND US.birthdate < UNIX_TIMESTAMP(NOW() - INTERVAL 13 YEAR)*1000 
+             THEN '13-17'
+         WHEN UNIX_TIMESTAMP(NOW() - INTERVAL 24 YEAR) * 1000 < US.birthdate  
+             THEN '18-24'
+         WHEN UNIX_TIMESTAMP(NOW() - INTERVAL 34 YEAR) * 1000 < US.birthdate
+             THEN '25-34'
+         WHEN UNIX_TIMESTAMP(NOW() - INTERVAL 44 YEAR) * 1000 < US.birthdate
+             THEN '34-44'
+         ELSE '44+'
+         END AS name, COALESCE((COUNT(*) / (SELECT COUNT(*) FROM User) * 100),0) AS percent
+       FROM User US
+       GROUP BY name
+       ORDER BY percent DESC
+       LIMIT 1)`,
     (err, res) => {
       if (err) {
         console.log("error: ", err);

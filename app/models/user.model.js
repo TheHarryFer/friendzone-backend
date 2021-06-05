@@ -227,8 +227,9 @@ User.getUser = (user_id, result) => {
                      HOST.participant_id = '${user_id}') AS joined,
       COUNT(IF(FO.follower_id = '${user_id}', IF(FO.status_id = 'ST09',1,NULL), NULL)) AS following,
       COUNT(IF(FO.following_id ='${user_id}', IF(FO.status_id = 'ST09',1,NULL), NULL)) AS follower
-  FROM
-      Follower FO LEFT JOIN User US ON US.user_id = '${user_id}'`,
+    FROM
+      User US LEFT JOIN Follower FO ON US.user_id = FO.follower_id OR US.user_id = FO.following_id
+      WHERE US.user_id = '${user_id}'`,
     (err, res) => {
       if (err) {
         console.log("error: ", err);
