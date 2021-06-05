@@ -14,6 +14,8 @@ const secretKey = require("./app/config/auth.config").secret;
 var corsOptions = {
   origin: "*",
   credentials: false,
+  Headers: "x-access-token"
+
 };
 app.use(cors(corsOptions));
 app.use(cookieParser(secretKey));
