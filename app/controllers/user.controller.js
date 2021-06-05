@@ -57,12 +57,11 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage }).single("uploadedImages");
 
 exports.displayPic = (req, res) => {
-  User.getProfilePicturePath(req.params.user_id, (err, user) => {
+  User.getProfilePicturePath(req.params.user_id, async (err, user) => {
     if (err) return res.status(500).send({ message: err.message });
     if (!user)
       return res.status(404).send({ message: "this user is not found" });
     else {
-      console.log(user.profile_pic)
       let fileType = path.extname(user.profile_pic); 
 
       if (fileType === ".png") contentType = "image/png";

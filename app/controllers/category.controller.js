@@ -148,7 +148,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage }).single("uploadedImages");
 
 exports.displayCategoryIcon = (req, res) => {
-  Category.getCategoryIconPath(req.query.category_id, (err, categoryIcon) => {
+  Category.getCategoryIconPath(req.query.category_id, async (err, categoryIcon) => {
     if (err) return res.status(500).send({ message: err.message });
     if (!categoryIcon)
       return res.status(404).send({ message: "this category is not found" });

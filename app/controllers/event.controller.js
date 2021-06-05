@@ -421,7 +421,7 @@ exports.createEventReview = (req, res) => {
 };
 
 exports.displayPic = (req, res) => {
-  Event.getEventPicturePath(req.params.event_id, (err, event) => {
+  Event.getEventPicturePath(req.params.event_id, async (err, event) => {
     if (err) return res.status(500).send({ message: err.message });
     if (!event)
       return res.status(404).send({ message: "this event is not found" });

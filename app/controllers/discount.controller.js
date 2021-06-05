@@ -62,7 +62,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage }).single("uploadedImages");
 
 exports.displayPic = (req, res) => {
-  Discount.getDiscountPicturePath(req.params.discount_id, (err, discount) => {
+  Discount.getDiscountPicturePath(req.params.discount_id, async (err, discount) => {
     if (err) return res.status(500).send({ message: err.message });
     if (!discount)
       return res.status(404).send({ message: "this discount is not found" });
