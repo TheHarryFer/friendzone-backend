@@ -74,7 +74,7 @@ exports.signup = (req, res) => {
 exports.signin = (req, res) => {
   User.findByidentification(req.body.identification, (err, user) => {
     if (err) return res.status(500).send({ message: err.message });
-    if (!user) {
+    if (user.message == "not_found") {
       return res.status(404).send({ message: "User not found." });
     } else {
       var passwordIsValid = bcrypt.compareSync(

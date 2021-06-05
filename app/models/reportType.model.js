@@ -9,8 +9,24 @@ const ReportType = function (reportType) {
   this.updated_at = reportType.updated_at;
 };
 
+ReportType.getCount = (result) => {
+  sql.query("SELECT COUNT(*) AS count FROM ReportType;", (err, res) => {
+    if (err) {
+      console.log("error: ", err);
+      result(err, null);
+      return;
+    }
+
+    if (res) {
+      //console.log("Count : ", res[0].count);
+      result(null, res[0].count);
+      return;
+    }
+  });
+};
+
 ReportType.create = (newReportType, result) => {
-  sql.query(`INSERT INTO ReportType VALUES ?`, newReportType, (err, res) => {
+  sql.query(`INSERT INTO ReportType SET ?`, newReportType, (err, res) => {
     if (err) {
       console.log("error : ", err);
       result(err, null);
@@ -22,9 +38,26 @@ ReportType.create = (newReportType, result) => {
   });
 };
 
+ReportType.update = (reportType, result) => {
+  sql.query(
+    `Update ReportType Set ? WHERE report_type_id = "${reportType.report_type_id}"`,
+    reportType,
+    (err, res) => {
+      if (err) {
+        console.log("error : ", err);
+        result(err, null);
+        return;
+      }
+
+      //console.log("Updated report type : ", { ...reportType });
+      result(null, { ...reportType });
+    }
+  );
+};
+
 ReportType.getReportTypeUserList = (result) => {
   sql.query(
-    `SELECT report_type_id, type_name FROM ReportType WHERE require_suspect = 1`,
+    `SELECT report_type_id, type_name FROM ReportType WHERE require_suspect = 1 AND status_id = "ST02"`,
     (err, res) => {
       if (err) {
         console.log("error : ", err);
@@ -38,7 +71,7 @@ ReportType.getReportTypeUserList = (result) => {
 
 ReportType.getReportTypeEventList = (result) => {
   sql.query(
-    `SELECT report_type_id, type_name FROM ReportType WHERE require_event = 1`,
+    `SELECT report_type_id, type_name FROM ReportType WHERE require_event = 1 AND status_id = "ST02"`,
     (err, res) => {
       if (err) {
         console.log("error : ", err);
@@ -52,7 +85,7 @@ ReportType.getReportTypeEventList = (result) => {
 
 ReportType.getReportTypeWebList = (result) => {
   sql.query(
-    `SELECT report_type_id, type_name FROM ReportType WHERE require_suspect = 0 AND require_event = 0`,
+    `SELECT report_type_id, type_name FROM ReportType WHERE require_suspect = 0 AND require_event = 0 AND status_id = "ST02"`,
     (err, res) => {
       if (err) {
         console.log("error : ", err);

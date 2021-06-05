@@ -62,7 +62,8 @@ exports.displayPic = (req, res) => {
     if (!user)
       return res.status(404).send({ message: "this user is not found" });
     else {
-      let fileType = path.extname(user.profile_pic);
+      console.log(user.profile_pic)
+      let fileType = path.extname(user.profile_pic); 
 
       if (fileType === ".png") contentType = "image/png";
       else if (fileType === ".jpg") contentType = "image/jpg";

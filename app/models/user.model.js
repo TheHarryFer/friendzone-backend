@@ -82,7 +82,7 @@ User.findByidentification = (identification, result) => {
       }
 
       // not found user with the username
-      result({ message: "not_found" }, null);
+      result(null, { message: "not_found" });
       return;
     }
   );

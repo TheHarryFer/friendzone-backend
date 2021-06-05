@@ -33,6 +33,49 @@ exports.create = (req, res) => {
   });
 };
 
+exports.createType = (req, res) => {
+  if (!req.body) {
+    return res.status(400).send({
+      message: "Content can not be empty!"
+    });
+  }
+
+  ReportType.getCount((err, count) => {
+    if (err) return res.status(500).send({ message: err.message });
+    else {
+      count++;
+      count = count.toString();
+      var report_type_id = "RT" + count.padStart(2, "0");
+      var reportType = new ReportType("");
+
+      reportType = req.body;
+      reportType.report_type_id = report_type_id;
+      reportType.status_id = "ST02";
+      reportType.created_at = getTimeStamp();
+      reportType.updated_at = getTimeStamp();
+      ReportType.create(reportType, (err, reportType) => {
+        if (err) return res.status(500).send({ message: err.message });
+        else return res.status(200).send({report_type_id: reportType.report_type_id, type_name: reportType.type_name});
+      });
+    }
+  });
+};
+
+exports.updateType = (req, res) => {
+  if (!req.body) {
+    res.status(400).send({
+      message: "Content can not be empty!"
+    });
+  }
+
+  req.body.updated_at = getTimeStamp();
+
+  ReportType.update(req.body, (err, reportType) => {
+    if (err) return res.status(500).send({ message: err.message });
+    if (reportType) return res.status(200).send({report_type_id: reportType.report_type_id, type_name: reportType.type_name});
+  });
+};
+
 exports.getReportTypeUserList = (req, res) => {
   ReportType.getReportTypeUserList((err, reportType) => {
     if (err) return res.status(500).send({ message: err.message });
